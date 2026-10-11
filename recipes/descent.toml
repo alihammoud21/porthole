@@ -1,0 +1,26 @@
+schema = 1
+id = "descent"
+title = "Descent"
+year = 1995
+runtime = "dxx-rebirth"
+tier = 1
+status = "planned"
+layout = "sixdof"
+
+[detect]
+require = ["descent.hog"]
+any = ["descent.pig", "descent2.hog", "alien1.pig"]
+
+[assets]
+target = "."
+include = ["*.hog", "*.pig", "*.mvl", "*.hmp", "*.s11", "*.s22"]
+
+[expect]
+a13 = "60fps"
+jit = "none"
+
+[notes]
+caveats = [
+  "Six degrees of freedom is the hardest control problem in this whole repository.",
+  "The sixdof layout uses twin sticks plus gyro for roll. It is not fully solved.",
+]

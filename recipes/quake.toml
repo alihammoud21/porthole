@@ -1,0 +1,26 @@
+schema = 1
+id = "quake"
+title = "Quake"
+year = 1996
+runtime = "ironwail"
+tier = 1
+status = "planned"
+layout = "fps-twin-stick"
+
+[detect]
+require = ["id1/pak0.pak"]
+any = ["id1/pak1.pak", "hipnotic/pak0.pak", "rogue/pak0.pak"]
+
+[assets]
+target = "."
+include = ["id1/**", "hipnotic/**", "rogue/**", "*.pak"]
+
+[expect]
+a13 = "capped at display refresh"
+jit = "none"
+
+[notes]
+caveats = [
+  "pak0.pak alone is the shareware episode. pak1.pak adds the registered episodes.",
+  "Mission packs are detected as separate library entries.",
+]

@@ -1,0 +1,27 @@
+schema = 1
+id = "ttd"
+title = "Transport Tycoon Deluxe"
+year = 1995
+runtime = "openttd"
+tier = 1
+status = "planned"
+layout = "pointer-trackpad"
+
+[detect]
+require = ["trg1r.grf"]
+any = ["trgcr.grf", "trghr.grf", "sample.cat"]
+
+[assets]
+target = "baseset/"
+include = ["*.grf", "*.cat", "*.obg", "*.obs"]
+
+[expect]
+a13 = "60fps"
+jit = "none"
+
+[notes]
+caveats = [
+  "The only entry here that needs no owned game: OpenGFX/OpenSFX/OpenMSX are free",
+  "replacements, and Porthole offers to fetch those (they are freely licensed, not",
+  "anyone's copyrighted assets). Original GRFs are supported if you have them.",
+]

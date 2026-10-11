@@ -1,0 +1,23 @@
+schema = 1
+id = "arx-fatalis"
+title = "Arx Fatalis"
+year = 2002
+runtime = "arxlibertatis"
+tier = 1
+status = "planned"
+layout = "fps-twin-stick"
+
+[detect]
+require = ["data.pak"]
+any = ["loc.pak", "data2.pak", "sfx.pak", "speech.pak", "arx.exe"]
+
+[assets]
+target = "arx/"
+include = ["*.pak", "graph/**", "misc/**", "sfx/**", "speech/**"]
+
+[expect]
+a15 = "60fps"
+jit = "none"
+
+[notes]
+caveats = ["Rune-drawing spellcasting is gesture-based and works unusually well on touch."]

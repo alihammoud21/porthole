@@ -1,0 +1,87 @@
+schema = 1
+id = "isometric-touch"
+name = "Isometric direct touch"
+description = """
+Tap the ground to walk there, tap a thing to use it, hold to keep attacking. The
+original Diablo control scheme was already a pointer poking at an isometric world,
+which is almost exactly what a touchscreen is — so the best layout here is mostly
+an absence of layout.
+
+A virtual stick is included for people who prefer it, off by default.
+"""
+safe_area = true
+autohide_on_controller = true
+
+[[control]]
+kind = "pointer"
+id = "world"
+mode = "absolute"
+region = "full"
+show_cursor = false
+bind = "mouse"
+
+[[control]]
+kind = "gesture"
+trigger = "tap"
+bind = "mouse_left"
+
+[[control]]
+kind = "gesture"
+trigger = "hold"
+bind = "mouse_left_hold"
+
+[[control]]
+kind = "gesture"
+trigger = "two-finger-tap"
+bind = "cast_spell"
+
+[[control]]
+kind = "button"
+id = "inventory"
+anchor = "bottom-right"
+offset = [24, 24]
+size = 60
+opacity = 0.30
+bind = "inventory"
+
+[[control]]
+kind = "button"
+id = "spellbook"
+anchor = "bottom-right"
+offset = [96, 24]
+size = 60
+opacity = 0.30
+bind = "spellbook"
+
+[[control]]
+kind = "button"
+id = "healthpot"
+anchor = "bottom-left"
+offset = [24, 24]
+size = 60
+opacity = 0.32
+haptic = "light"
+bind = "belt_1"
+
+[[control]]
+kind = "button"
+id = "manapot"
+anchor = "bottom-left"
+offset = [96, 24]
+size = 60
+opacity = 0.32
+bind = "belt_2"
+
+[[control]]
+kind = "stick"
+id = "move"
+anchor = "bottom-left"
+offset = [24, 100]
+size = 130
+opacity = 0.0
+enabled = false
+bind = "walk"
+
+[tuning]
+tap_to_move = true
+item_labels = "hold-alt-equivalent: two-finger-hold"

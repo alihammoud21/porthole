@@ -1,0 +1,28 @@
+schema = 1
+id = "sonic-mania"
+title = "Sonic Mania"
+year = 2017
+runtime = "rsdkv5"
+tier = 1
+status = "planned"
+layout = "platformer-2d"
+vendor = false
+
+[detect]
+require = ["data.rsdk"]
+any = ["sonicmania.exe", "data/game/gameconfig.bin"]
+
+[assets]
+target = "."
+include = ["Data.rsdk", "*.rsdk"]
+
+[expect]
+a15 = "60fps"
+jit = "none"
+
+[notes]
+caveats = [
+  "Needs the decompilation built from upstream, which Porthole does not vendor.",
+  "Reads Data.rsdk straight out of a Steam install.",
+  "The upstream licence is non-commercial; redistribution of builds is restricted.",
+]

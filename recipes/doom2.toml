@@ -1,0 +1,27 @@
+schema = 1
+id = "doom2"
+title = "Doom II: Hell on Earth"
+year = 1994
+runtime = "gzdoom"
+tier = 1
+status = "planned"
+layout = "fps-twin-stick"
+
+[detect]
+require = ["doom2.wad"]
+
+[assets]
+target = "iwads/"
+include = ["*.wad", "*.pk3", "*.deh"]
+
+[expect]
+a17 = "capped at display refresh"
+a13 = "capped at display refresh"
+jit = "none"
+
+[notes]
+caveats = [
+  "Any IWAD works: doom.wad, doom2.wad, tnt.wad, plutonia.wad, heretic.wad, hexen.wad.",
+  "Drop PWADs beside the IWAD and pick them at launch — Sigil, Ancient Aliens, MyHouse.",
+  "Auto-aim defaults on for touch. Turn it off if you're serious.",
+]

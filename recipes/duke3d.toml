@@ -1,0 +1,26 @@
+schema = 1
+id = "duke3d"
+title = "Duke Nukem 3D"
+year = 1996
+runtime = "eduke32"
+tier = 1
+status = "planned"
+layout = "fps-twin-stick"
+
+[detect]
+require = ["duke3d.grp"]
+any = ["duke3d.def", "nam.grp", "ww2gi.grp"]
+
+[assets]
+target = "."
+include = ["*.grp", "*.def", "*.con", "*.rts", "*.mid"]
+
+[expect]
+a13 = "60fps software renderer"
+jit = "none"
+
+[notes]
+caveats = [
+  "Atomic Edition (1.5) GRP is the one most things expect.",
+  "The Megaton/World Tour Steam releases both contain a usable GRP.",
+]

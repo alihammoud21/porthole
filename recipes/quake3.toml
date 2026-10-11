@@ -1,0 +1,25 @@
+schema = 1
+id = "quake3"
+title = "Quake III Arena"
+year = 1999
+runtime = "ioquake3"
+tier = 1
+status = "planned"
+layout = "fps-twin-stick"
+
+[detect]
+require = ["baseq3/pak0.pk3"]
+
+[assets]
+target = "."
+include = ["baseq3/**", "missionpack/**"]
+
+[expect]
+a15 = "125fps+"
+jit = "helps"
+
+[notes]
+caveats = [
+  "Game logic is QVM bytecode. The interpreter is fine; the JIT is a bonus.",
+  "Point release paks (pak1-pak8) are needed for multiplayer compatibility.",
+]

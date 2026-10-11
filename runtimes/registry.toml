@@ -1,0 +1,501 @@
+# Porthole runtime registry
+#
+# A runtime is the thing that actually plays a game. Recipes reference these by id.
+#
+# tier     1 native port · 2 emulated console · 3 interpreted · 4 translation layer
+# ios      ready    — known to build and run on arm64-apple-ios
+#          wip      — port in progress
+#          planned  — no work started
+# jit      none     — pure interpreter or native code, no recompiler
+#          helps    — works without JIT, materially faster with it
+#          required — unusable at playable speed without JIT
+# gfx      metal | gles (ANGLE) | vulkan (MoltenVK) | software
+#
+# `rev` is pinned at build time to the commit for the named tag. The build backend
+# records the resolved hash in the attribution manifest. Pinning to a moving branch
+# is not permitted.
+
+schema = 1
+
+# ─────────────────────────────── Tier 1 — native ports ───────────────────────────────
+
+[openmw]
+name = "OpenMW"
+tier = 1
+upstream = "https://gitlab.com/OpenMW/openmw"
+version = "0.49.0"
+license = "GPL-3.0-only"
+ios = "wip"
+jit = "none"
+gfx = "vulkan"
+plays = ["The Elder Scrolls III: Morrowind"]
+notes = "Large, OSG-based. The heaviest Tier 1 port. A15+ for comfortable framerates."
+
+[devilutionx]
+name = "DevilutionX"
+tier = 1
+upstream = "https://github.com/diasurgical/DevilutionX"
+version = "1.5.4"
+license = "Unlicense"
+ios = "ready"
+jit = "none"
+gfx = "metal"
+plays = ["Diablo", "Diablo: Hellfire"]
+notes = "Upstream already supports iOS. Touch controls land essentially for free."
+
+[gzdoom]
+name = "GZDoom"
+tier = 1
+upstream = "https://github.com/ZDoom/gzdoom"
+version = "g4.14.1"
+license = "GPL-3.0-only"
+ios = "wip"
+jit = "none"
+gfx = "gles"
+plays = ["Doom", "Doom II", "Heretic", "Hexen", "Strife", "Chex Quest"]
+notes = "Also runs the entire universe of Doom mods and total conversions."
+
+[ironwail]
+name = "Ironwail"
+tier = 1
+upstream = "https://github.com/andrei-drexler/ironwail"
+version = "0.8.0"
+license = "GPL-2.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Quake"]
+
+[yquake2]
+name = "Yamagi Quake II"
+tier = 1
+upstream = "https://github.com/yquake2/yquake2"
+version = "8.41"
+license = "GPL-2.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Quake II"]
+
+[ioquake3]
+name = "ioquake3"
+tier = 1
+upstream = "https://github.com/ioquake/ioq3"
+version = "main"
+license = "GPL-2.0-only"
+ios = "planned"
+jit = "helps"
+gfx = "gles"
+plays = ["Quake III Arena", "Team Arena"]
+notes = "QVM bytecode interpreter works everywhere; the QVM JIT needs the entitlement."
+
+[eduke32]
+name = "EDuke32"
+tier = 1
+upstream = "https://voidpoint.io/terminx/eduke32"
+version = "r10564"
+license = "GPL-2.0-only AND BUILD-license"
+ios = "planned"
+jit = "none"
+gfx = "software"
+plays = ["Duke Nukem 3D"]
+notes = "The BUILD engine portion carries Ken Silverman's own license. Both apply."
+
+[nblood]
+name = "NBlood"
+tier = 1
+upstream = "https://github.com/nukeykt/NBlood"
+version = "main"
+license = "GPL-2.0-only AND BUILD-license"
+ios = "planned"
+jit = "none"
+gfx = "software"
+plays = ["Blood", "Blood: Cryptic Passage"]
+
+[openrct2]
+name = "OpenRCT2"
+tier = 1
+upstream = "https://github.com/OpenRCT2/OpenRCT2"
+version = "0.4.17"
+license = "GPL-3.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["RollerCoaster Tycoon 2", "RollerCoaster Tycoon 1 (via RCT2)"]
+notes = "A pointer-driven management game. Lives or dies on the virtual cursor layout."
+
+[openttd]
+name = "OpenTTD"
+tier = 1
+upstream = "https://github.com/OpenTTD/OpenTTD"
+version = "14.1"
+license = "GPL-2.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Transport Tycoon Deluxe"]
+notes = "Runs fully free with OpenGFX. The only runtime here that needs no owned game."
+
+[corsixth]
+name = "CorsixTH"
+tier = 1
+upstream = "https://github.com/CorsixTH/CorsixTH"
+version = "0.68"
+license = "MIT"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Theme Hospital"]
+
+[augustus]
+name = "Augustus"
+tier = 1
+upstream = "https://github.com/Keriew/augustus"
+version = "4.0.0"
+license = "AGPL-3.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Caesar III"]
+notes = "Julius is the faithful fork; Augustus adds quality-of-life. Both build alike."
+
+[openxcom]
+name = "OpenXcom"
+tier = 1
+upstream = "https://github.com/OpenXcom/OpenXcom"
+version = "1.0.0"
+license = "GPL-3.0-only"
+ios = "planned"
+jit = "none"
+gfx = "software"
+plays = ["X-COM: UFO Defense", "X-COM: Terror from the Deep"]
+
+[fheroes2]
+name = "fheroes2"
+tier = 1
+upstream = "https://github.com/ihhub/fheroes2"
+version = "1.1.1"
+license = "GPL-2.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Heroes of Might and Magic II"]
+
+[vcmi]
+name = "VCMI"
+tier = 1
+upstream = "https://github.com/vcmi/vcmi"
+version = "1.6.0"
+license = "GPL-2.0-only"
+ios = "ready"
+jit = "none"
+gfx = "gles"
+plays = ["Heroes of Might and Magic III"]
+notes = "Upstream ships an iOS target already. One of the best turn-based phone fits."
+
+[arxlibertatis]
+name = "Arx Libertatis"
+tier = 1
+upstream = "https://github.com/arx/ArxLibertatis"
+version = "1.2.1"
+license = "GPL-3.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Arx Fatalis"]
+
+[tr1x]
+name = "TR1X"
+tier = 1
+upstream = "https://github.com/LostArtefacts/TRX"
+version = "4.9"
+license = "GPL-3.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Tomb Raider", "Tomb Raider II"]
+
+[theforceengine]
+name = "The Force Engine"
+tier = 1
+upstream = "https://github.com/luciusDXL/TheForceEngine"
+version = "1.10"
+license = "GPL-2.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Star Wars: Dark Forces"]
+
+[dxx-rebirth]
+name = "DXX-Rebirth"
+tier = 1
+upstream = "https://github.com/dxx-rebirth/dxx-rebirth"
+version = "0.60.0"
+license = "GPL-3.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Descent", "Descent II"]
+
+[ecwolf]
+name = "ECWolf"
+tier = 1
+upstream = "https://github.com/Blzut3/ECWolf"
+version = "1.4.1"
+license = "GPL-2.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Wolfenstein 3D", "Spear of Destiny"]
+
+[openjk]
+name = "OpenJK"
+tier = 1
+upstream = "https://github.com/JACoders/OpenJK"
+version = "main"
+license = "GPL-2.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Jedi Knight II: Jedi Outcast", "Jedi Academy"]
+
+[nxengine-evo]
+name = "NXEngine-evo"
+tier = 1
+upstream = "https://github.com/nxengine/nxengine-evo"
+version = "2.6.5"
+license = "GPL-3.0-only"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Cave Story"]
+
+[rsdkv5]
+name = "RSDKv5-Decompilation"
+tier = 1
+upstream = "https://github.com/Rubberduckycooly/Sonic-Mania-Decompilation"
+version = "main"
+license = "custom-noncommercial"
+ios = "planned"
+jit = "none"
+gfx = "gles"
+plays = ["Sonic Mania"]
+vendor = false
+notes = "Reads Data.rsdk from a Steam install. Upstream is user-fetched, not vendored."
+
+# ──────────────────────────── Tier 2 — emulated consoles ────────────────────────────
+
+[libretro]
+name = "libretro (core host)"
+tier = 2
+upstream = "https://github.com/libretro/libretro-common"
+version = "main"
+license = "MIT"
+ios = "wip"
+jit = "none"
+gfx = "metal"
+notes = """
+Not an emulator itself — the host shim that adapts any libretro core to RuntimeHost.
+Individual cores are listed below and selected per recipe.
+"""
+
+[core.snes9x]
+name = "Snes9x"
+tier = 2
+host = "libretro"
+license = "custom-noncommercial"
+ios = "ready"
+jit = "none"
+plays = ["Super Nintendo"]
+
+[core.mesen]
+name = "Mesen"
+tier = 2
+host = "libretro"
+license = "GPL-3.0-only"
+ios = "ready"
+jit = "none"
+plays = ["NES", "Famicom"]
+
+[core.mgba]
+name = "mGBA"
+tier = 2
+host = "libretro"
+license = "MPL-2.0"
+ios = "ready"
+jit = "none"
+plays = ["Game Boy Advance", "Game Boy", "Game Boy Color"]
+
+[core.genesis_plus_gx]
+name = "Genesis Plus GX"
+tier = 2
+host = "libretro"
+license = "custom-noncommercial"
+ios = "ready"
+jit = "none"
+plays = ["Mega Drive / Genesis", "Master System", "Game Gear", "Sega CD"]
+
+[core.pcsx_rearmed]
+name = "PCSX-ReARMed"
+tier = 2
+host = "libretro"
+license = "GPL-2.0-only"
+ios = "ready"
+jit = "helps"
+plays = ["PlayStation"]
+notes = "Interpreter is playable on A14+. Dynarec roughly triples throughput."
+
+[core.beetle_psx]
+name = "Beetle PSX"
+tier = 2
+host = "libretro"
+license = "GPL-2.0-only"
+ios = "ready"
+jit = "none"
+plays = ["PlayStation"]
+notes = "More accurate, much heavier. No dynarec at all, so JIT is irrelevant here."
+
+[core.mupen64plus_next]
+name = "Mupen64Plus-Next"
+tier = 2
+host = "libretro"
+license = "GPL-3.0-only"
+ios = "wip"
+jit = "required"
+plays = ["Nintendo 64"]
+notes = "Pure interpreter is single-digit fps. This one genuinely needs the entitlement."
+
+[core.ppsspp]
+name = "PPSSPP"
+tier = 2
+host = "libretro"
+license = "GPL-2.0-only"
+ios = "wip"
+jit = "required"
+plays = ["PlayStation Portable"]
+
+[core.melonds]
+name = "melonDS"
+tier = 2
+host = "libretro"
+license = "GPL-3.0-only"
+ios = "wip"
+jit = "helps"
+plays = ["Nintendo DS"]
+notes = "Dual screen on a phone is a real layout design problem, not just an input one."
+
+[core.flycast]
+name = "Flycast"
+tier = 2
+host = "libretro"
+license = "GPL-2.0-only"
+ios = "wip"
+jit = "required"
+plays = ["Dreamcast", "Naomi", "Atomiswave"]
+
+[core.fbneo]
+name = "FinalBurn Neo"
+tier = 2
+host = "libretro"
+license = "custom-noncommercial"
+ios = "ready"
+jit = "none"
+plays = ["Arcade (Neo Geo, CPS1/2/3, and more)"]
+
+[core.mame]
+name = "MAME"
+tier = 2
+host = "libretro"
+license = "GPL-2.0-or-later"
+ios = "wip"
+jit = "helps"
+plays = ["Arcade (very broad)"]
+
+# ───────────────────────────── Tier 3 — interpreted ─────────────────────────────
+
+[scummvm]
+name = "ScummVM"
+tier = 3
+upstream = "https://github.com/scummvm/scummvm"
+version = "2.9.0"
+license = "GPL-3.0-only"
+ios = "ready"
+jit = "none"
+gfx = "gles"
+plays = ["Hundreds of point-and-click adventures"]
+notes = "Upstream has first-class iOS support. The single highest-value Tier 3 runtime."
+
+[dosbox-staging]
+name = "DOSBox Staging"
+tier = 3
+upstream = "https://github.com/dosbox-staging/dosbox-staging"
+version = "0.82.0"
+license = "GPL-2.0-or-later"
+ios = "wip"
+jit = "helps"
+gfx = "gles"
+plays = ["DOS games"]
+notes = "Dynamic core needs JIT; the normal core is fine for anything pre-1995."
+
+[godot]
+name = "Godot export template"
+tier = 3
+upstream = "https://github.com/godotengine/godot"
+version = "4.4"
+license = "MIT"
+ios = "ready"
+jit = "none"
+gfx = "vulkan"
+plays = ["Any Godot game you have the .pck for"]
+notes = "Cleanest path in the whole project — a .pck plus the iOS template is an app."
+
+[love]
+name = "LÖVE"
+tier = 3
+upstream = "https://github.com/love2d/love"
+version = "11.5"
+license = "Zlib"
+ios = "ready"
+jit = "none"
+gfx = "gles"
+plays = ["Any .love game"]
+notes = "LuaJIT falls back to its interpreter without the entitlement."
+
+[ruffle]
+name = "Ruffle"
+tier = 3
+upstream = "https://github.com/ruffle-rs/ruffle"
+version = "nightly"
+license = "MIT OR Apache-2.0"
+ios = "planned"
+jit = "none"
+gfx = "vulkan"
+plays = ["Flash .swf games"]
+
+[frotz]
+name = "Frotz"
+tier = 3
+upstream = "https://gitlab.com/DavidGriffith/frotz"
+version = "2.54"
+license = "GPL-2.0-or-later"
+ios = "planned"
+jit = "none"
+gfx = "software"
+plays = ["Z-machine / Infocom text adventures"]
+
+# ─────────────────────── Tier 4 — translation layer (research) ───────────────────────
+
+[wine-box64]
+name = "Wine + box64"
+tier = 4
+upstream = "https://github.com/ptitSeb/box64"
+version = "main"
+license = "MIT AND LGPL-2.1"
+ios = "planned"
+jit = "required"
+gfx = "vulkan"
+plays = ["Arbitrary Windows x86-64 binaries, in theory"]
+notes = """
+Research track. Needs JIT, a Wine prefix, DXVK on top of MoltenVK, and a tolerance for
+disappointment. Documented so nobody has to rediscover why it's hard.
+"""

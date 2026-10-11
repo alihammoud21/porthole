@@ -1,0 +1,30 @@
+schema = 1
+id = "dos-family"
+title = "DOS games (generic)"
+family = true
+runtime = "dosbox-staging"
+tier = 3
+status = "planned"
+layout = "keyboard-overlay"
+confidence = "low"
+
+[detect]
+any = ["dosbox.conf", "dosbox_*.conf", "*.bat", "*.exe", "*.com"]
+require_count = 2
+
+[assets]
+target = "c/"
+include = ["**"]
+
+[expect]
+a13 = "fine for anything pre-1995"
+a15 = "386/486-era titles at full speed"
+jit = "helps"
+
+[notes]
+caveats = [
+  "A deliberately low-confidence catch-all: it fires on almost any DOS directory, so",
+  "it is only suggested when nothing more specific matched.",
+  "Prefer a dedicated recipe where one exists — a native port beats emulation.",
+  "The keyboard-overlay layout is a compromise. Per-game layouts are very welcome PRs.",
+]

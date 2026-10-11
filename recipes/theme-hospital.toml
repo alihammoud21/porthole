@@ -1,0 +1,23 @@
+schema = 1
+id = "theme-hospital"
+title = "Theme Hospital"
+year = 1997
+runtime = "corsixth"
+tier = 1
+status = "planned"
+layout = "pointer-trackpad"
+
+[detect]
+require = ["data", "levels"]
+any = ["anims", "qdata", "sound", "hospital.exe"]
+
+[assets]
+target = "th/"
+include = ["DATA/**", "LEVELS/**", "ANIMS/**", "QDATA/**", "SOUND/**", "INTRO/**"]
+
+[expect]
+a13 = "60fps"
+jit = "none"
+
+[notes]
+caveats = ["The GOG release is the easiest source. CD installs work identically."]

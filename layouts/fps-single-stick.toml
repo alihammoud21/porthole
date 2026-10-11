@@ -1,0 +1,62 @@
+schema = 1
+id = "fps-single-stick"
+name = "Single-stick FPS"
+description = """
+For shooters from before mouse-look: Wolfenstein 3D has no vertical aim, so a second
+stick would control nothing. One stick moves and turns, and the freed-up right side of
+the screen becomes big, forgiving buttons.
+"""
+safe_area = true
+autohide_on_controller = true
+
+[[control]]
+kind = "stick"
+id = "move"
+anchor = "bottom-left"
+offset = [24, 30]
+size = 160
+opacity = 0.30
+deadzone = 0.14
+bind = { up = "forward", down = "back", left = "turn_left", right = "turn_right" }
+
+[[control]]
+kind = "button"
+id = "fire"
+anchor = "bottom-right"
+offset = [28, 120]
+size = 96
+opacity = 0.34
+haptic = "medium"
+bind = "attack"
+
+[[control]]
+kind = "button"
+id = "use"
+anchor = "bottom-right"
+offset = [136, 64]
+size = 72
+opacity = 0.30
+bind = "use"
+
+[[control]]
+kind = "button"
+id = "strafe"
+anchor = "bottom-right"
+offset = [28, 40]
+size = 64
+opacity = 0.28
+bind = "strafe_modifier"
+
+[[control]]
+kind = "slider"
+id = "weapon"
+anchor = "top-right"
+offset = [16, 16]
+length = 200
+opacity = 0.22
+bind = "weapon_cycle"
+style = "segmented"
+
+[tuning]
+vertical_aim = false
+auto_aim = "generous"

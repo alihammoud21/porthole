@@ -1,0 +1,67 @@
+schema = 1
+id = "pointer-trackpad"
+name = "Trackpad pointer"
+description = """
+For dense desktop UIs that assume a mouse — RollerCoaster Tycoon 2, Transport Tycoon,
+Theme Hospital, Caesar III. Dragging anywhere moves a visible cursor relatively, the
+way a laptop trackpad does, so your finger never covers the thing you are clicking.
+
+This is the layout that makes 1990s management games playable rather than merely
+running. Direct-touch is available but ships off by default for these games: on a
+6-inch screen a fingertip is roughly 40 pixels of a UI designed for a 1-pixel pointer.
+"""
+safe_area = true
+
+[[control]]
+kind = "pointer"
+id = "cursor"
+mode = "relative"
+region = "full"
+sensitivity = 1.25
+acceleration = "light"
+show_cursor = true
+cursor_size = 22
+bind = "mouse"
+
+[[control]]
+kind = "button"
+id = "lmb"
+anchor = "bottom-right"
+offset = [26, 26]
+size = 76
+opacity = 0.32
+haptic = "light"
+bind = "mouse_left"
+
+[[control]]
+kind = "button"
+id = "rmb"
+anchor = "bottom-right"
+offset = [112, 26]
+size = 62
+opacity = 0.28
+bind = "mouse_right"
+
+[[control]]
+kind = "gesture"
+trigger = "tap"
+bind = "mouse_left"
+
+[[control]]
+kind = "gesture"
+trigger = "two-finger-tap"
+bind = "mouse_right"
+
+[[control]]
+kind = "gesture"
+trigger = "pinch"
+bind = "zoom"
+
+[[control]]
+kind = "gesture"
+trigger = "two-finger-drag"
+bind = "scroll"
+
+[tuning]
+drag_lock = true          # tap-and-hold lmb to keep it held for drag-select
+precision_mode = "slow"   # second finger down halves sensitivity

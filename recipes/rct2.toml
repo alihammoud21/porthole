@@ -1,0 +1,27 @@
+schema = 1
+id = "rct2"
+title = "RollerCoaster Tycoon 2"
+year = 2002
+runtime = "openrct2"
+tier = 1
+status = "planned"
+layout = "pointer-trackpad"
+
+[detect]
+require = ["data/g1.dat"]
+any = ["objdata", "data/css1.dat", "rct2.exe"]
+
+[assets]
+target = "rct2/"
+include = ["Data/**", "ObjData/**", "Landscapes/**", "Scenarios/**", "Tracks/**"]
+
+[expect]
+a15 = "60fps"
+jit = "none"
+
+[notes]
+caveats = [
+  "A dense pointer-driven UI on a 6-inch screen. Pinch-zoom and the trackpad layout are",
+  "both essential; the direct-touch layout is close to unusable and ships disabled.",
+  "RCT1 assets can be linked in for its scenarios, exactly as on desktop.",
+]

@@ -1,0 +1,23 @@
+schema = 1
+id = "blood"
+title = "Blood"
+year = 1997
+runtime = "nblood"
+tier = 1
+status = "planned"
+layout = "fps-twin-stick"
+
+[detect]
+require = ["blood.rff"]
+any = ["blood.ini", "sounds.rff", "cryptic.ini"]
+
+[assets]
+target = "."
+include = ["*.rff", "*.ini", "*.smk", "*.wav", "*.mid"]
+
+[expect]
+a13 = "60fps"
+jit = "none"
+
+[notes]
+caveats = ["One Unit Whole Blood and the Fresh Supply re-release both ship a usable RFF."]

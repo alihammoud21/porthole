@@ -1,0 +1,27 @@
+schema = 1
+id = "tomb-raider"
+title = "Tomb Raider"
+year = 1996
+runtime = "tr1x"
+tier = 1
+status = "planned"
+layout = "tank-controls"
+
+[detect]
+require = ["data/*.phd"]
+any = ["tombpc.dat", "fmv/*.rpl", "data/title.phd"]
+
+[assets]
+target = "tr1/"
+include = ["data/**", "fmv/**", "music/**", "cfg/**"]
+
+[expect]
+a13 = "60fps"
+jit = "none"
+
+[notes]
+caveats = [
+  "Tank controls on a d-pad are the authentic choice; a modern twin-stick layout is",
+  "also provided and is what most people will actually want.",
+  "The Steam/GOG TombATI release is the cleanest source.",
+]

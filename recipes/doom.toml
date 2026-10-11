@@ -1,0 +1,19 @@
+schema = 1
+id = "doom"
+title = "Doom"
+year = 1993
+runtime = "gzdoom"
+tier = 1
+status = "planned"
+layout = "fps-twin-stick"
+
+[detect]
+require = ["doom.wad"]
+
+[assets]
+target = "iwads/"
+include = ["*.wad", "*.pk3", "*.deh"]
+
+[expect]
+a13 = "capped at display refresh"
+jit = "none"

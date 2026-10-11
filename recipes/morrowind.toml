@@ -1,0 +1,31 @@
+schema = 1
+id = "morrowind"
+title = "The Elder Scrolls III: Morrowind"
+year = 2002
+runtime = "openmw"
+tier = 1
+status = "planned"
+layout = "rpg-virtual-cursor"
+
+[detect]
+require = ["morrowind.esm", "morrowind.bsa"]
+any = ["tribunal.esm", "bloodmoon.esm"]
+root_hint = "Data Files"
+min_bytes = 700_000_000
+
+[assets]
+target = "Data Files/"
+include = ["*.esm", "*.esp", "*.bsa", "Music/**", "Video/**", "Fonts/**", "Splash/**"]
+
+[expect]
+a17 = "60fps, high settings"
+a15 = "60fps, medium view distance"
+a13 = "40-50fps, reduced view distance"
+jit = "none"
+
+[notes]
+caveats = [
+  "Journal and inventory are dense UI; the virtual cursor layout matters more than usual.",
+  "Shadows are the first thing to turn off on A13/A14.",
+  "Mods work — drop them in Data Files and they are picked up as on desktop.",
+]

@@ -1,0 +1,20 @@
+schema = 1
+id = "caesar3"
+title = "Caesar III"
+year = 1998
+runtime = "augustus"
+tier = 1
+status = "planned"
+layout = "pointer-trackpad"
+
+[detect]
+require = ["c3.eng"]
+any = ["c3_model.txt", "data/pharaoh.sg2", "c3.sg2", "c3.emp"]
+
+[assets]
+target = "c3/"
+include = ["*.eng", "*.sg2", "*.555", "*.emp", "*.txt", "Data/**", "Audio/**", "Wavs/**"]
+
+[expect]
+a13 = "60fps"
+jit = "none"

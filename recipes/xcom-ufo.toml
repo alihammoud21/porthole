@@ -1,0 +1,23 @@
+schema = 1
+id = "xcom-ufo"
+title = "X-COM: UFO Defense"
+year = 1994
+runtime = "openxcom"
+tier = 1
+status = "planned"
+layout = "pointer-direct"
+
+[detect]
+require = ["geodata", "geograph"]
+any = ["units", "maps", "routes", "terrain", "ufoexe"]
+
+[assets]
+target = "UFO/"
+include = ["GEODATA/**", "GEOGRAPH/**", "MAPS/**", "ROUTES/**", "SOUND/**", "TERRAIN/**", "UNITS/**", "UFOINTRO/**"]
+
+[expect]
+a13 = "60fps"
+jit = "none"
+
+[notes]
+caveats = ["Terror from the Deep uses the same runtime with a different data root."]

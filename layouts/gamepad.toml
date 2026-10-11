@@ -1,0 +1,77 @@
+schema = 1
+id = "gamepad"
+name = "Console gamepad"
+description = """
+A conventional console pad for Tier 2 emulated games. Face buttons are laid out to
+match the emulated system's own arrangement, which the shell reads from the recipe's
+platform rather than hardcoding here.
+"""
+safe_area = true
+autohide_on_controller = true
+
+[[control]]
+kind = "dpad"
+id = "dpad"
+anchor = "bottom-left"
+offset = [22, 34]
+size = 160
+opacity = 0.32
+style = "cross"
+diagonals = true
+bind = "dpad"
+
+[[control]]
+kind = "button-cluster"
+id = "face"
+anchor = "bottom-right"
+offset = [22, 34]
+size = 170
+opacity = 0.32
+arrangement = "platform"    # resolved from the recipe's platform
+haptic = "light"
+bind = "face"
+
+[[control]]
+kind = "button"
+id = "l"
+anchor = "top-left"
+offset = [18, 18]
+size = 64
+opacity = 0.26
+bind = "l1"
+
+[[control]]
+kind = "button"
+id = "r"
+anchor = "top-right"
+offset = [18, 18]
+size = 64
+opacity = 0.26
+bind = "r1"
+
+[[control]]
+kind = "button"
+id = "start"
+anchor = "bottom-center"
+offset = [44, 20]
+size = 46
+opacity = 0.24
+bind = "start"
+
+[[control]]
+kind = "button"
+id = "select"
+anchor = "bottom-center"
+offset = [-44, 20]
+size = 46
+opacity = 0.24
+bind = "select"
+
+[[control]]
+kind = "gesture"
+trigger = "edge-swipe-left"
+bind = "shell_menu"        # save states, fast-forward, exit
+
+[tuning]
+fast_forward = "hold-r-plus-swipe"
+rewind = "available-if-core-supports"

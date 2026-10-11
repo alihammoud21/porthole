@@ -1,0 +1,80 @@
+schema = 1
+id = "tank-controls"
+name = "Tank controls"
+description = """
+Rotate-then-move, the way the original Tomb Raider worked: left/right turn Lara rather
+than strafing her. Authentic, grid-precise, and genuinely the right scheme for a game
+whose jumps were designed around it.
+
+A modern twin-stick alternative ships alongside it as `fps-twin-stick`, because most
+people in 2026 will want that instead, and the recipe lets you pick.
+"""
+safe_area = true
+autohide_on_controller = true
+
+[[control]]
+kind = "dpad"
+id = "dpad"
+anchor = "bottom-left"
+offset = [22, 30]
+size = 156
+opacity = 0.32
+style = "cross"
+diagonals = false
+bind = { up = "forward", down = "back", left = "turn_left", right = "turn_right" }
+
+[[control]]
+kind = "button"
+id = "jump"
+anchor = "bottom-right"
+offset = [30, 130]
+size = 82
+opacity = 0.34
+haptic = "medium"
+bind = "jump"
+
+[[control]]
+kind = "button"
+id = "action"
+anchor = "bottom-right"
+offset = [124, 74]
+size = 72
+opacity = 0.32
+haptic = "light"
+bind = "action"
+
+[[control]]
+kind = "button"
+id = "walk"
+anchor = "bottom-right"
+offset = [30, 40]
+size = 64
+opacity = 0.30
+bind = "walk_modifier"
+style = "toggle"
+
+[[control]]
+kind = "button"
+id = "roll"
+anchor = "bottom-center"
+offset = [0, 24]
+size = 56
+opacity = 0.26
+bind = "roll"
+
+[[control]]
+kind = "button"
+id = "look"
+anchor = "top-right"
+offset = [18, 18]
+size = 52
+opacity = 0.24
+bind = "look_modifier"
+
+[[control]]
+kind = "gesture"
+trigger = "edge-swipe-left"
+bind = "inventory"
+
+[tuning]
+walk_is_toggle = true    # holding a modifier through a ledge-walk is miserable on glass

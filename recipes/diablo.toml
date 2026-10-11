@@ -1,0 +1,28 @@
+schema = 1
+id = "diablo"
+title = "Diablo"
+year = 1996
+runtime = "devilutionx"
+tier = 1
+status = "planned"
+layout = "isometric-touch"
+
+[detect]
+require = ["diabdat.mpq"]
+any = ["hellfire.mpq", "hfmonk.mpq", "hfmusic.mpq"]
+
+[assets]
+target = "."
+include = ["*.mpq"]
+
+[expect]
+a17 = "60fps, trivially"
+a13 = "60fps, trivially"
+jit = "none"
+
+[notes]
+caveats = [
+  "Hellfire expansion is detected automatically if its MPQs are present.",
+  "Direct-touch movement reads better here than a virtual stick. Both are in the layout.",
+  "Spanish/Polish localized MPQs work; set the language in runtime options.",
+]

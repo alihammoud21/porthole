@@ -1,0 +1,89 @@
+schema = 1
+id = "sixdof"
+name = "Six degrees of freedom"
+description = """
+The hardest control problem in this repository. Descent gives you pitch, yaw, roll,
+forward/back, slide left/right and slide up/down — nine axes of intent on a sheet of
+glass with no edges to brace against.
+
+Current approach: left stick slides, right half pitches and yaws, roll goes to the
+gyroscope, and throttle is a vertical slider. It is playable. It is not solved, and
+this layout should be considered an open invitation.
+"""
+safe_area = true
+autohide_on_controller = true
+status = "experimental"
+
+[[control]]
+kind = "stick"
+id = "slide"
+anchor = "bottom-left"
+offset = [24, 30]
+size = 150
+opacity = 0.30
+deadzone = 0.16
+bind = { up = "slide_up", down = "slide_down", left = "slide_left", right = "slide_right" }
+
+[[control]]
+kind = "pointer"
+id = "aim"
+mode = "relative"
+region = "right-half"
+sensitivity = 1.3
+bind = "pitch_yaw"
+
+[[control]]
+kind = "gyro"
+id = "roll"
+axis = "roll"
+sensitivity = 0.8
+deadzone = 0.10
+bind = "roll"
+enabled = true
+
+[[control]]
+kind = "slider"
+id = "throttle"
+anchor = "left-center"
+offset = [10, 0]
+length = 180
+orientation = "vertical"
+opacity = 0.24
+bind = "throttle"
+centered = true
+
+[[control]]
+kind = "button"
+id = "fire"
+anchor = "bottom-right"
+offset = [28, 140]
+size = 84
+opacity = 0.34
+bind = "fire_primary"
+
+[[control]]
+kind = "button"
+id = "missile"
+anchor = "bottom-right"
+offset = [124, 70]
+size = 68
+opacity = 0.30
+bind = "fire_secondary"
+
+[[control]]
+kind = "button"
+id = "afterburner"
+anchor = "bottom-right"
+offset = [28, 54]
+size = 62
+opacity = 0.28
+bind = "afterburner"
+
+[[control]]
+kind = "gesture"
+trigger = "two-finger-tap"
+bind = "automap"
+
+[tuning]
+roll_source = "gyro"       # alternatives: shoulder-buttons, disabled
+level_assist = "optional"  # auto-level roll when input stops

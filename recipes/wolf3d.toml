@@ -1,0 +1,20 @@
+schema = 1
+id = "wolf3d"
+title = "Wolfenstein 3D"
+year = 1992
+runtime = "ecwolf"
+tier = 1
+status = "planned"
+layout = "fps-single-stick"
+
+[detect]
+require = ["vswap.wl6"]
+any = ["gamemaps.wl6", "audiohed.wl6", "vswap.sod", "vswap.wl1"]
+
+[assets]
+target = "."
+include = ["*.wl6", "*.wl1", "*.sod", "*.sd1", "*.n3d"]
+
+[expect]
+a13 = "capped at display refresh"
+jit = "none"

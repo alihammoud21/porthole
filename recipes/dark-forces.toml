@@ -1,0 +1,20 @@
+schema = 1
+id = "dark-forces"
+title = "Star Wars: Dark Forces"
+year = 1995
+runtime = "theforceengine"
+tier = 1
+status = "planned"
+layout = "fps-twin-stick"
+
+[detect]
+require = ["dark.gob"]
+any = ["sounds.gob", "textures.gob", "sprites.gob", "dfbrief.lfd"]
+
+[assets]
+target = "df/"
+include = ["*.gob", "*.lfd", "*.voc", "*.gmd"]
+
+[expect]
+a13 = "60fps"
+jit = "none"

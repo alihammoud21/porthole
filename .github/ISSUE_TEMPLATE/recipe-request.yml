@@ -1,0 +1,50 @@
+name: Recipe request
+description: Ask for support for a game that has no recipe yet
+title: "[recipe] "
+labels: ["recipe-request", "good first issue"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Recipes are ~30 lines of TOML and need no Mac — see
+        [docs/RECIPES.md](../blob/main/docs/RECIPES.md). If you own the game, you are
+        the best person to write this, and we'll help in the thread.
+
+        **Never attach game files.** Filenames and sizes only.
+  - type: input
+    id: game
+    attributes:
+      label: Game and year
+      placeholder: Theme Park (1994)
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: What's in the game directory
+      description: Output of `ls` (or `find . -maxdepth 2`). Names and sizes, no contents.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: engine
+    attributes:
+      label: Is there an open-source engine reimplementation?
+      description: A link makes this a tier 1 candidate, which is the best outcome.
+      placeholder: https://github.com/...
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Which tier do you think this is?
+      options:
+        - "Tier 1 — an open-source engine exists"
+        - "Tier 2 — it's a console ROM"
+        - "Tier 3 — DOS, ScummVM, Godot, LÖVE, Flash"
+        - "Tier 4 — Windows binary, no port"
+        - "No idea"
+  - type: checkboxes
+    id: willing
+    attributes:
+      label: Want to write it?
+      options:
+        - label: I'd like to write this recipe myself with some guidance

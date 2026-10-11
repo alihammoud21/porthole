@@ -1,0 +1,77 @@
+name: Game report
+description: Tell us a game works, or doesn't, on real hardware
+title: "[game] "
+labels: ["game-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reports from real devices are how the compatibility table becomes trustworthy.
+
+        **Do not attach game files, ROMs, or screenshots containing copyrighted assets.**
+        Filenames and sizes are fine and useful.
+  - type: input
+    id: game
+    attributes:
+      label: Game
+      placeholder: The Elder Scrolls III: Morrowind
+    validations:
+      required: true
+  - type: input
+    id: recipe
+    attributes:
+      label: Recipe id
+      description: From `porthole list games`. Write "none" if there isn't one yet.
+      placeholder: morrowind
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Outcome
+      options:
+        - Plays well
+        - Plays with caveats
+        - Boots but is unplayable
+        - Does not boot
+        - Not detected by scan
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and iOS version
+      placeholder: iPhone 14 Pro, iOS 26.1
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Install method
+      options:
+        - Free Apple ID + Xcode
+        - Paid Apple Developer
+        - SideStore
+        - AltStore PAL
+        - TrollStore
+        - Jailbreak
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Where your copy came from
+      description: GOG, Steam, original CD, dumped cartridge. Helps us know which file layout you have.
+      placeholder: GOG
+  - type: textarea
+    id: detail
+    attributes:
+      label: What happened
+      description: Frame rates, which controls felt wrong, where it broke. Specifics help.
+    validations:
+      required: true
+  - type: textarea
+    id: scan
+    attributes:
+      label: Output of `porthole plan <recipe>`
+      render: shell

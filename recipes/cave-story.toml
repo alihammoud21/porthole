@@ -1,0 +1,23 @@
+schema = 1
+id = "cave-story"
+title = "Cave Story"
+year = 2004
+runtime = "nxengine-evo"
+tier = 1
+status = "planned"
+layout = "platformer-2d"
+
+[detect]
+require = ["doukutsu.exe"]
+any = ["data/stage/*.pxm", "data/npc.tbl", "data/organya/*.org"]
+
+[assets]
+target = "."
+include = ["data/**", "doukutsu.exe"]
+
+[expect]
+a13 = "60fps"
+jit = "none"
+
+[notes]
+caveats = ["The freeware original is the supported source. Cave Story+ assets differ."]

@@ -1,0 +1,66 @@
+schema = 1
+id = "platformer-2d"
+name = "2D platformer"
+description = """
+A d-pad and two large face buttons, sized for thumbs rather than for fidelity to the
+original controller. Cave Story, Sonic Mania, and anything else where precise left/right
+and a reliable jump are the whole game.
+
+The d-pad is deliberately larger than it looks like it needs to be: platformers punish
+a missed input far more than a slow one.
+"""
+safe_area = true
+autohide_on_controller = true
+
+[[control]]
+kind = "dpad"
+id = "dpad"
+anchor = "bottom-left"
+offset = [22, 30]
+size = 150
+opacity = 0.32
+style = "cross"
+diagonals = true
+bind = "dpad"
+
+[[control]]
+kind = "button"
+id = "jump"
+anchor = "bottom-right"
+offset = [30, 40]
+size = 84
+opacity = 0.34
+haptic = "medium"
+bind = "jump"
+
+[[control]]
+kind = "button"
+id = "action"
+anchor = "bottom-right"
+offset = [128, 90]
+size = 76
+opacity = 0.32
+haptic = "light"
+bind = "action"
+
+[[control]]
+kind = "button"
+id = "swap"
+anchor = "top-right"
+offset = [18, 18]
+size = 56
+opacity = 0.26
+bind = "cycle_item"
+
+[[control]]
+kind = "button"
+id = "pause"
+anchor = "top-center"
+offset = [0, 14]
+size = 44
+opacity = 0.22
+bind = "start"
+
+[tuning]
+button_overlap_guard = true   # jump and action never register as one press
+dpad_snap = "8-way"

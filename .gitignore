@@ -1,0 +1,64 @@
+# Build output
+/build/
+/.cache/
+*.ipa
+*.xcarchive
+*.dSYM/
+
+# Xcode
+*.xcuserstate
+xcuserdata/
+DerivedData/
+*.xcworkspace/xcshareddata/
+
+# Runtime sources fetched at build time — never vendored
+/runtimes/*/src/
+/runtimes/*/_build/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# macOS
+.DS_Store
+
+# Never, under any circumstances, commit game data.
+# This is belt-and-braces; CI rejects these too.
+*.wad
+*.WAD
+*.mpq
+*.MPQ
+*.grp
+*.GRP
+*.pak
+*.PAK
+*.pk3
+*.rff
+*.esm
+*.bsa
+*.agg
+*.lod
+*.grf
+*.gob
+*.hog
+*.rsdk
+*.iso
+*.bin
+*.cue
+*.chd
+*.nes
+*.sfc
+*.smc
+*.gb
+*.gbc
+*.gba
+*.n64
+*.z64
+*.nds
+
+# NOTE: Mega Drive ROMs also use .md, but that collides with Markdown and losing
+# the docs is worse than catching one ROM extension. CI's binary check covers it.

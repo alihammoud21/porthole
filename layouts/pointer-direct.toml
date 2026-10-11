@@ -1,0 +1,52 @@
+schema = 1
+id = "pointer-direct"
+name = "Direct touch pointer"
+description = """
+Tap where you mean. Correct for turn-based and point-and-click games whose targets are
+already finger-sized — ScummVM adventures, Heroes of Might & Magic, X-COM.
+
+Touchscreens are genuinely better than mice for this genre, so the layout stays nearly
+invisible.
+"""
+safe_area = true
+
+[[control]]
+kind = "pointer"
+id = "cursor"
+mode = "absolute"
+region = "full"
+show_cursor = false
+bind = "mouse"
+
+[[control]]
+kind = "gesture"
+trigger = "tap"
+bind = "mouse_left"
+
+[[control]]
+kind = "gesture"
+trigger = "long-press"
+bind = "mouse_right"
+duration_ms = 320
+
+[[control]]
+kind = "gesture"
+trigger = "two-finger-tap"
+bind = "mouse_right"
+
+[[control]]
+kind = "gesture"
+trigger = "pinch"
+bind = "zoom"
+
+[[control]]
+kind = "button"
+id = "kb"
+anchor = "top-right"
+offset = [16, 16]
+size = 48
+opacity = 0.22
+bind = "toggle_keyboard"
+
+[tuning]
+magnifier = true    # loupe above the finger for small targets

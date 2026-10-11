@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dev dependencies
+        run: pip install pytest
+
+      # The project's central invariant. Checked before anything else because a
+      # violation here is more serious than any test failure.
+      - name: No game assets in the repository
+        run: |
+          set -euo pipefail
+          BAD=$(git ls-files recipes/ layouts/ runtimes/ \
+            | grep -viE '\.(toml|md|json)$' || true)
+          if [ -n "$BAD" ]; then
+            echo "::error::Non-metadata files found in data directories:"
+            echo "$BAD"
+            exit 1
+          fi
+
+          # Anything over 256 KB anywhere in the repo is suspicious for a project
+          # whose source is TOML, Python and Markdown.
+          LARGE=$(git ls-files -z | xargs -0 -I{} \
+            sh -c 'test -f "{}" && test $(wc -c < "{}") -gt 262144 && echo "{}"' || true)
+          if [ -n "$LARGE" ]; then
+            echo "::error::Unexpectedly large files:"
+            echo "$LARGE"
+            exit 1
+          fi
+
+          # Known game-data extensions, anywhere.
+          ROMS=$(git ls-files \
+            | grep -iE '\.(wad|mpq|grp|pak|pk3|rff|esm|bsa|agg|lod|grf|gob|hog|rsdk|nes|sfc|smc|gba|n64|z64|nds|iso|chd|cue)$' || true)
+          if [ -n "$ROMS" ]; then
+            echo "::error::Files with game-data extensions:"
+            echo "$ROMS"
+            exit 1
+          fi
+
+      - name: Validate recipes, runtimes and layouts
+        run: python3 -m porthole validate
+
+      - name: Compatibility table is up to date
+        run: python3 tools/gen-compat.py --check
+
+      - name: Tests
+        run: python3 -m pytest tests/ -q
+
+      - name: CLI smoke test
+        run: |
+          python3 -m porthole --version
+          python3 -m porthole list games
+          python3 -m porthole list runtimes
+          python3 -m porthole list layouts
+          python3 -m porthole plan diablo || true   # exits 1 while unbuildable

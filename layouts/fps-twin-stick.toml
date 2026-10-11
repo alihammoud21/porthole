@@ -1,0 +1,83 @@
+schema = 1
+id = "fps-twin-stick"
+name = "Twin-stick FPS"
+description = """
+Left stick moves, right side of the screen aims as a relative trackpad. The standard
+modern mobile shooter arrangement, and the right default for Doom, Quake, Duke, Blood,
+Dark Forces, and Arx Fatalis.
+"""
+safe_area = true
+autohide_on_controller = true
+
+[[control]]
+kind = "stick"
+id = "move"
+anchor = "bottom-left"
+offset = [24, 28]
+size = 150
+opacity = 0.30
+deadzone = 0.14
+recenter = true
+bind = { up = "forward", down = "back", left = "strafe_left", right = "strafe_right" }
+
+[[control]]
+kind = "pointer"
+id = "aim"
+mode = "relative"
+region = "right-half"
+sensitivity = 1.6
+invert_y = false
+bind = "look"
+
+[[control]]
+kind = "button"
+id = "fire"
+anchor = "bottom-right"
+offset = [28, 150]
+size = 86
+opacity = 0.34
+haptic = "medium"
+bind = "attack"
+
+[[control]]
+kind = "button"
+id = "use"
+anchor = "bottom-right"
+offset = [124, 74]
+size = 64
+opacity = 0.30
+haptic = "light"
+bind = "use"
+
+[[control]]
+kind = "button"
+id = "jump"
+anchor = "bottom-right"
+offset = [28, 62]
+size = 64
+opacity = 0.30
+bind = "jump"
+
+[[control]]
+kind = "slider"
+id = "weapon"
+anchor = "top-right"
+offset = [16, 16]
+length = 220
+opacity = 0.22
+bind = "weapon_cycle"
+style = "segmented"
+
+[[control]]
+kind = "gesture"
+trigger = "two-finger-tap"
+bind = "map"
+
+[[control]]
+kind = "gesture"
+trigger = "edge-swipe-left"
+bind = "menu"
+
+[tuning]
+auto_aim = "light"
+gyro_aim = "optional"

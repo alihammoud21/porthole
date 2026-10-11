@@ -1,0 +1,27 @@
+schema = 1
+id = "homm3"
+title = "Heroes of Might and Magic III"
+year = 1999
+runtime = "vcmi"
+tier = 1
+status = "planned"
+layout = "pointer-direct"
+
+[detect]
+require = ["data/h3bitmap.lod"]
+any = ["data/h3sprite.lod", "data/h3ab_bmp.lod", "heroes3.exe"]
+
+[assets]
+target = "h3/"
+include = ["Data/**", "Maps/**", "Mp3/**"]
+
+[expect]
+a13 = "60fps"
+jit = "none"
+
+[notes]
+caveats = [
+  "Turn-based and pointer-driven: close to an ideal phone fit, and VCMI already",
+  "ships an iOS target upstream.",
+  "Shadow of Death / Complete editions give the full campaign set.",
+]

@@ -1,0 +1,46 @@
+schema = 1
+id = "keyboard-overlay"
+name = "Keyboard overlay"
+description = """
+The fallback for keyboard-heavy DOS games where no better mapping exists. A compact,
+scrollable key strip plus a pointer, and a bluetooth keyboard if you have one.
+
+This layout is honest about being a compromise. A hand-made per-game layout is almost
+always better, and contributing one is the single most useful PR a non-programmer can
+open against this project.
+"""
+safe_area = true
+
+[[control]]
+kind = "pointer"
+id = "cursor"
+mode = "relative"
+region = "upper-two-thirds"
+sensitivity = 1.2
+show_cursor = true
+bind = "mouse"
+
+[[control]]
+kind = "keystrip"
+id = "keys"
+anchor = "bottom-center"
+offset = [0, 14]
+rows = 2
+opacity = 0.30
+scrollable = true
+keys = [
+  ["esc", "1", "2", "3", "4", "5", "space", "enter"],
+  ["ctrl", "alt", "shift", "tab", "up", "down", "left", "right"],
+]
+
+[[control]]
+kind = "button"
+id = "fullkb"
+anchor = "top-right"
+offset = [16, 16]
+size = 48
+opacity = 0.22
+bind = "toggle_keyboard"
+
+[tuning]
+hardware_keyboard = "preferred-when-connected"

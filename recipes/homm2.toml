@@ -1,0 +1,20 @@
+schema = 1
+id = "homm2"
+title = "Heroes of Might and Magic II"
+year = 1996
+runtime = "fheroes2"
+tier = 1
+status = "planned"
+layout = "pointer-direct"
+
+[detect]
+require = ["heroes2.agg"]
+any = ["heroes2x.agg", "data/heroes2.agg"]
+
+[assets]
+target = "h2/"
+include = ["DATA/**", "MAPS/**", "ANIM/**", "MUSIC/**"]
+
+[expect]
+a13 = "60fps"
+jit = "none"

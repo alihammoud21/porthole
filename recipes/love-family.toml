@@ -1,0 +1,22 @@
+schema = 1
+id = "love-family"
+title = "LÖVE games (generic)"
+family = true
+runtime = "love"
+tier = 3
+status = "planned"
+layout = "passthrough"
+
+[detect]
+any = ["*.love", "main.lua"]
+
+[assets]
+target = "."
+include = ["*.love", "**/*.lua", "assets/**"]
+
+[expect]
+a13 = "depends on the game; usually trivial"
+jit = "helps"
+
+[notes]
+caveats = ["LuaJIT uses its interpreter without the JIT entitlement — fine for most games."]

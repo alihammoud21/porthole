@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "porthole"
+version = "0.1.0.dev0"
+description = "Turn game files you own into an iPhone app."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+keywords = ["ios", "emulation", "sideloading", "games", "preservation"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Games/Entertainment",
+  "Topic :: System :: Archiving",
+]
+# No runtime dependencies, on purpose: `python3 -m porthole` must work on a
+# fresh checkout with no install step. tomllib is stdlib on 3.11+.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+porthole = "porthole.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/YOURNAME/porthole"
+Documentation = "https://github.com/YOURNAME/porthole/tree/main/docs"
+Issues = "https://github.com/YOURNAME/porthole/issues"
+
+[tool.setuptools]
+packages = ["porthole"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

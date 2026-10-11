@@ -1,0 +1,109 @@
+schema = 1
+id = "rpg-virtual-cursor"
+name = "RPG with virtual cursor"
+description = """
+Twin-stick movement for the world, plus a dedicated cursor mode for inventory, journal
+and dialogue. Built for Morrowind, where you spend half the game in menus designed for
+a mouse and the other half walking.
+
+Tapping the cursor button freezes movement, reveals a pointer, and re-binds the sticks
+to pointer control — rather than trying to make one layout serve both jobs badly.
+"""
+safe_area = true
+autohide_on_controller = true
+modal = true
+
+[[control]]
+kind = "stick"
+id = "move"
+anchor = "bottom-left"
+offset = [24, 28]
+size = 150
+opacity = 0.30
+deadzone = 0.14
+bind = { up = "forward", down = "back", left = "strafe_left", right = "strafe_right" }
+mode = "world"
+
+[[control]]
+kind = "pointer"
+id = "look"
+mode = "relative"
+region = "right-half"
+sensitivity = 1.4
+bind = "look"
+active_in = "world"
+
+[[control]]
+kind = "button"
+id = "attack"
+anchor = "bottom-right"
+offset = [28, 150]
+size = 86
+opacity = 0.34
+haptic = "medium"
+bind = "attack"
+active_in = "world"
+
+[[control]]
+kind = "button"
+id = "activate"
+anchor = "bottom-right"
+offset = [124, 74]
+size = 64
+opacity = 0.30
+bind = "activate"
+active_in = "world"
+
+[[control]]
+kind = "button"
+id = "ready_magic"
+anchor = "bottom-right"
+offset = [28, 62]
+size = 64
+opacity = 0.28
+bind = "ready_magic"
+active_in = "world"
+
+[[control]]
+kind = "button"
+id = "cursor_mode"
+anchor = "top-right"
+offset = [16, 16]
+size = 52
+opacity = 0.26
+bind = "mode:cursor"
+icon = "cursor"
+
+[[control]]
+kind = "pointer"
+id = "cursor"
+mode = "relative"
+region = "full"
+sensitivity = 1.2
+show_cursor = true
+bind = "mouse"
+active_in = "cursor"
+
+[[control]]
+kind = "button"
+id = "click"
+anchor = "bottom-right"
+offset = [26, 26]
+size = 76
+opacity = 0.32
+bind = "mouse_left"
+active_in = "cursor"
+
+[[control]]
+kind = "gesture"
+trigger = "two-finger-tap"
+bind = "mode:toggle"
+
+[[control]]
+kind = "gesture"
+trigger = "edge-swipe-left"
+bind = "journal"
+
+[tuning]
+sneak = "double-tap-left-stick"
+always_run = true

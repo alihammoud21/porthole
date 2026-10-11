@@ -1,0 +1,27 @@
+schema = 1
+id = "godot-family"
+title = "Godot games (generic)"
+family = true
+runtime = "godot"
+tier = 3
+status = "planned"
+layout = "passthrough"
+
+[detect]
+any = ["*.pck"]
+
+[assets]
+target = "."
+include = ["*.pck"]
+
+[expect]
+a13 = "depends entirely on the game"
+jit = "none"
+
+[notes]
+caveats = [
+  "The cleanest path in the project: a .pck plus the matching Godot iOS export",
+  "template is already an app.",
+  "The .pck must match the Godot major/minor version it was exported from.",
+  "Games built for mouse and keyboard still need a touch layout.",
+]

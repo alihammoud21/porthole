@@ -1,0 +1,45 @@
+schema = 1
+id = "rom-family"
+title = "Console ROMs and disc images"
+family = true
+runtime = "libretro"
+tier = 2
+status = "planned"
+layout = "gamepad"
+
+[detect.ext]
+".nes"  = { core = "core.mesen",             platform = "NES" }
+".sfc"  = { core = "core.snes9x",            platform = "SNES" }
+".smc"  = { core = "core.snes9x",            platform = "SNES" }
+".gb"   = { core = "core.mgba",              platform = "Game Boy" }
+".gbc"  = { core = "core.mgba",              platform = "Game Boy Color" }
+".gba"  = { core = "core.mgba",              platform = "Game Boy Advance" }
+".md"   = { core = "core.genesis_plus_gx",   platform = "Mega Drive" }
+".gen"  = { core = "core.genesis_plus_gx",   platform = "Mega Drive" }
+".sms"  = { core = "core.genesis_plus_gx",   platform = "Master System" }
+".gg"   = { core = "core.genesis_plus_gx",   platform = "Game Gear" }
+".n64"  = { core = "core.mupen64plus_next",  platform = "Nintendo 64" }
+".z64"  = { core = "core.mupen64plus_next",  platform = "Nintendo 64" }
+".nds"  = { core = "core.melonds",           platform = "Nintendo DS" }
+".iso"  = { core = "core.pcsx_rearmed",      platform = "PlayStation", ambiguous = true }
+".cue"  = { core = "core.pcsx_rearmed",      platform = "PlayStation", ambiguous = true }
+".chd"  = { core = "core.pcsx_rearmed",      platform = "PlayStation", ambiguous = true }
+".pbp"  = { core = "core.pcsx_rearmed",      platform = "PlayStation" }
+".cso"  = { core = "core.ppsspp",            platform = "PSP" }
+".gdi"  = { core = "core.flycast",           platform = "Dreamcast" }
+
+[assets]
+target = "roms/"
+
+[expect]
+jit = "varies by platform — see the runtime registry"
+
+[notes]
+caveats = [
+  "No BIOS or firmware images are included. Where a core needs one (PSX, Dreamcast,",
+  "Saturn), Porthole tells you which file and expects you to dump it from hardware",
+  "you own. See docs/LEGAL.md.",
+  "Extension alone is weak evidence: .iso and .cue are ambiguous and get flagged for",
+  "confirmation rather than guessed at.",
+  "Zipped ROMs are supported for cores that accept them.",
+]

@@ -1,0 +1,32 @@
+schema = 1
+id = "scummvm-family"
+title = "ScummVM-supported adventure games"
+family = true
+runtime = "scummvm"
+tier = 3
+status = "planned"
+layout = "pointer-direct"
+
+[detect]
+any = [
+  "monkey.000", "monkey2.000", "atlantis.000", "indy3.000", "tentacle.000",
+  "samnmax.000", "ft.la0", "dig.la0", "comi.la0", "loom.000", "maniac.000",
+  "zak.000", "*.he0", "resource.000", "resource.map", "sierra.exe",
+  "sky.dsk", "sky.dnr", "bs1.dat", "clusters/*.clu", "*.grv", "gob.000",
+]
+
+[assets]
+target = "games/<id>/"
+include = ["**"]
+
+[expect]
+a13 = "60fps, every supported game"
+jit = "none"
+
+[notes]
+caveats = [
+  "ScummVM detects the specific game itself; this recipe just routes a directory to it.",
+  "Covers several hundred titles — LucasArts SCUMM, Sierra SCI/AGI, Revolution,",
+  "Westwood, Coktel, Humongous, and more. If ScummVM runs it, Porthole runs it.",
+  "Point-and-click on a touchscreen is the one genre that is *better* on a phone.",
+]
