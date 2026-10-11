@@ -1,0 +1,115 @@
+schema = 1
+id = "selftest"
+name = "Self-test"
+description = """
+Exercises every control kind the overlay can draw, so a glance at the running app
+confirms the whole input path: overlay -> InputRouter -> layout binding -> ph_button.
+
+The runtime lights one lamp per abstract button, so anything that does not light up
+is a bug in exactly one of three places.
+"""
+safe_area = true
+autohide_on_controller = false
+
+[[control]]
+kind = "stick"
+id = "move"
+anchor = "bottom-left"
+offset = [24, 28]
+size = 150
+opacity = 0.30
+deadzone = 0.12
+recenter = true
+bind = { up = "forward", down = "back", left = "strafe_left", right = "strafe_right" }
+
+[[control]]
+kind = "dpad"
+id = "dpad"
+anchor = "bottom-center"
+offset = [0, 24]
+size = 120
+opacity = 0.28
+diagonals = true
+bind = { up = "forward", down = "back", left = "turn_left", right = "turn_right" }
+
+[[control]]
+kind = "pointer"
+id = "aim"
+mode = "relative"
+region = "right-half"
+sensitivity = 1.4
+bind = "look"
+
+[[control]]
+kind = "button"
+id = "a"
+anchor = "bottom-right"
+offset = [28, 150]
+size = 86
+opacity = 0.34
+haptic = "medium"
+bind = "attack"
+
+[[control]]
+kind = "button"
+id = "b"
+anchor = "bottom-right"
+offset = [124, 74]
+size = 64
+opacity = 0.30
+haptic = "light"
+bind = "jump"
+
+[[control]]
+kind = "button"
+id = "x"
+anchor = "bottom-right"
+offset = [28, 62]
+size = 64
+opacity = 0.30
+bind = "use"
+
+[[control]]
+kind = "button"
+id = "y"
+anchor = "bottom-right"
+offset = [196, 62]
+size = 64
+opacity = 0.30
+bind = "ready_magic"
+
+[[control]]
+kind = "button"
+id = "lmb"
+anchor = "right-center"
+offset = [18, 0]
+size = 56
+opacity = 0.26
+bind = "mouse_left"
+
+[[control]]
+kind = "slider"
+id = "weapon"
+anchor = "top-right"
+offset = [16, 16]
+length = 200
+opacity = 0.22
+style = "segmented"
+bind = "weapon_cycle"
+
+[[control]]
+kind = "button"
+id = "menu"
+anchor = "top-left"
+offset = [16, 16]
+size = 48
+opacity = 0.24
+bind = "shell_menu"
+
+[[control]]
+kind = "gesture"
+trigger = "edge-swipe-left"
+bind = "shell_menu"
+
+[tuning]
+purpose = "pipeline verification"

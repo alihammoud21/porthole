@@ -17,6 +17,28 @@
 
 schema = 1
 
+# ───────────────────── reference implementation (not a game) ─────────────────────
+
+[selftest]
+name = "Porthole self-test"
+tier = 3
+upstream = "https://github.com/alihammoud21/porthole"
+version = "1.0.0"
+license = "MIT"
+ios = "ready"
+jit = "none"
+gfx = "metal"
+plays = ["Nothing — it verifies the pipeline"]
+notes = """
+Not an emulator or an engine. The reference RuntimeHost implementation: it draws a
+test pattern, visualises live input, emits a tone, and implements save states, in
+about 200 lines of C that live in this repository.
+
+It exists so the pipeline can be verified end to end -- cross-compile, bundle, sign,
+install, run -- without first building a real engine's dependency tree, and so anyone
+writing a new adapter has a known-good example of every part of the ABI.
+"""
+
 # ─────────────────────────────── Tier 1 — native ports ───────────────────────────────
 
 [openmw]

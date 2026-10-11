@@ -8,7 +8,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from . import __version__, plan as plan_mod, registry, scan as scan_mod, ui
+from . import (__version__, build as build_mod, plan as plan_mod, registry,
+               scan as scan_mod, sign as sign_mod, ui)
 
 
 # ───────────────────────────────── scan ─────────────────────────────────
@@ -262,6 +263,99 @@ def cmd_doctor(args) -> int:
     return 1 if missing_required else 0
 
 
+# ───────────────────────────────── build ─────────────────────────────────
+
+def cmd_build(args) -> int:
+    try:
+        result = build_mod.build(args.game, mode=args.mode, verbose=args.verbose)
+    except KeyError:
+        ui.error(f"no recipe with id '{args.game}'")
+        print(ui.dim("  porthole list games"), file=sys.stderr)
+        return 2
+    except build_mod.BuildError as e:
+        ui.error(str(e))
+        return 1
+
+    print(ui.heading("Built"))
+    print(ui.field("app", str(result.app), 14))
+    print(ui.field("bundle id", result.bundle_id, 14))
+    print(ui.field("mode", args.mode, 14))
+    print(ui.field("runtime", result.runtime, 14))
+    print(ui.field("controls", result.layout, 14))
+    print(ui.field("size", ui.human_bytes(result.size_bytes), 14))
+    print(ui.field("shaders", "precompiled" if result.precompiled_shaders
+                   else "compiled at launch (no Metal toolchain)", 14))
+
+    print(ui.heading("Licenses in this build"))
+    for item in result.attribution:
+        version = f" {item['version']}" if item.get("version") else ""
+        print(f"  {item['component']}{version} — {ui.bold(item['license'])}")
+    print(ui.dim("  recorded in ATTRIBUTION.json inside the bundle"))
+
+    print(f"\n{ui.dim('  next:  porthole sign')}\n")
+    return 0
+
+
+# ───────────────────────────── sign / install ─────────────────────────────
+
+def _resolve_app(path_arg: str | None, mode: str) -> Path:
+    if path_arg:
+        return Path(path_arg).expanduser()
+    root = registry.repo_root() / "build" / mode
+    apps = sorted(root.glob("*.app")) if root.is_dir() else []
+    if not apps:
+        raise sign_mod.SignError(
+            f"nothing built in {root}.\n  Run: porthole build <game> --mode {mode}")
+    return apps[0]
+
+
+def cmd_sign(args) -> int:
+    try:
+        app = _resolve_app(args.app, args.mode)
+        result = sign_mod.sign(app)
+        sign_mod.verify(result.app)
+    except sign_mod.SignError as e:
+        ui.error(str(e))
+        return 1
+
+    print(ui.heading("Signed"))
+    print(ui.field("app", str(result.app), 14))
+    print(ui.field("bundle id", result.bundle_id, 14))
+    print(ui.field("identity", result.identity.name, 14))
+    print(ui.field("team", result.profile.team_id, 14))
+    print(ui.field("profile", result.profile.path.name, 14))
+
+    if result.days_left is not None:
+        if result.days_left <= 0:
+            print(ui.field("expires", ui.red("already expired"), 14))
+        elif result.days_left <= 8:
+            # Free Apple IDs get 7 days. This is the single most common surprise.
+            print(ui.field("expires", ui.yellow(
+                f"in {result.days_left} day(s) — free account"), 14))
+            print(f"\n  {ui.dim('Re-sign with `porthole sign` again; saves and')}")
+            print(f"  {ui.dim('imported games are untouched by re-signing.')}")
+        else:
+            print(ui.field("expires", f"in {result.days_left} days", 14))
+
+    if args.ipa:
+        ipa = sign_mod.make_ipa(result.app)
+        print(ui.field("ipa", f"{ipa}  {ui.dim(ui.human_bytes(ipa.stat().st_size))}", 14))
+
+    print(f"\n{ui.dim('  next:  porthole install')}\n")
+    return 0
+
+
+def cmd_install(args) -> int:
+    try:
+        app = _resolve_app(args.app, args.mode)
+        where = sign_mod.install(app)
+    except sign_mod.SignError as e:
+        ui.error(str(e))
+        return 1
+    print(f"\n{ui.green('  Installed')} to {ui.bold(where)}\n")
+    return 0
+
+
 # ───────────────────────────── stubs ─────────────────────────────
 
 def cmd_unimplemented(args) -> int:
@@ -303,14 +397,24 @@ def main(argv=None) -> int:
     p = sub.add_parser("doctor", help="check the local toolchain")
     p.set_defaults(fn=cmd_doctor)
 
-    for name, helptext in [
-        ("build", "cross-compile the runtime and emit an app (not implemented)"),
-        ("sign", "sign with your own certificate (not implemented)"),
-        ("install", "deploy to a connected iPhone (not implemented)"),
-    ]:
-        p = sub.add_parser(name, help=helptext)
-        p.add_argument("args", nargs="*")
-        p.set_defaults(fn=cmd_unimplemented, _name=name)
+    p = sub.add_parser("build", help="cross-compile the runtime and assemble an app")
+    p.add_argument("game", help="recipe id (see: porthole list games)")
+    p.add_argument("--mode", choices=["library", "standalone"], default="library",
+                   help="one app for many games (default), or one app per game")
+    p.add_argument("-v", "--verbose", action="store_true")
+    p.set_defaults(fn=cmd_build)
+
+    p = sub.add_parser("sign", help="sign with your own certificate")
+    p.add_argument("app", nargs="?", help="path to a .app (default: the last build)")
+    p.add_argument("--mode", choices=["library", "standalone"], default="library")
+    p.add_argument("--ipa", action="store_true",
+                   help="also package an .ipa for SideStore / AltStore")
+    p.set_defaults(fn=cmd_sign)
+
+    p = sub.add_parser("install", help="deploy to a connected iPhone over USB")
+    p.add_argument("app", nargs="?", help="path to a .app (default: the last build)")
+    p.add_argument("--mode", choices=["library", "standalone"], default="library")
+    p.set_defaults(fn=cmd_install)
 
     args = ap.parse_args(argv)
     try:

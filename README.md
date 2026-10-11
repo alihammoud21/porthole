@@ -63,16 +63,31 @@ interesting than "lawyers said so."
 
 ## Status
 
-**Pre-alpha. The design is real; most of the pipeline is not yet.**
+**Pre-alpha, but the pipeline is real: it produces a signable iOS app today.**
 
 | Stage | State |
 |---|---|
 | `porthole scan` — identify a game from a directory | **working** |
-| `porthole plan` — show runtime, controls, expectations | **working** |
-| Recipe + runtime + layout schemas | **stable enough to build on** |
-| `porthole build` — compile runtime, stage assets, emit Xcode project | in progress |
-| iOS shell app (touch controls, importer, library) | design complete, not written |
-| `porthole sign` / `install` | not started |
+| `porthole plan` — runtime, controls, honest expectations | **working** |
+| `porthole build` — cross-compile + assemble a real `.app` | **working** |
+| `porthole sign` — your own certificate, your own profile | **working** |
+| `porthole install` — deploy over USB | **working** |
+| RuntimeHost C ABI + reference runtime | **working** |
+| iOS shell: Metal renderer, touch controls, input router, audio | **written, typechecks, not yet run on a device** |
+| A real engine behind the ABI (DevilutionX first) | next |
+| Asset importer on device | written, untested on hardware |
+
+```console
+$ porthole build selftest
+  app        build/library/Porthole.app
+  runtime    selftest        size 691.7 KB
+  controls   selftest        shaders precompiled
+```
+
+That produces a genuine `arm64-apple-ios` app bundle — verified Mach-O binary, a
+`dlopen`-able runtime framework exporting all seven ABI symbols, valid plists. What
+has *not* happened yet is a real game engine behind the ABI, or a frame rendered on
+physical hardware.
 
 If you clone this today you can detect games and read a lot of documentation. You
 cannot yet get a game onto a phone. [Roadmap](docs/ROADMAP.md) ·

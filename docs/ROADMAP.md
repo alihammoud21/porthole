@@ -2,7 +2,7 @@
 
 Honest about what exists. Today that's detection, planning, and a lot of design.
 
-## Now — detection and data model
+## Done — detection, data model, and the pipeline
 
 - [x] Recipe schema and loader
 - [x] Runtime registry
@@ -11,24 +11,43 @@ Honest about what exists. Today that's detection, planning, and a lot of design.
 - [x] `plan` — resolve runtime + layout, report expectations and blockers
 - [x] `validate` — CI gate on dangling references and dishonest metadata
 - [x] `doctor` — toolchain and signing-identity check
-- [x] 27 recipes covering ~24 games plus 5 whole families
+- [x] 28 recipes covering ~24 games plus 5 whole families
+- [x] `RuntimeHost` C ABI — seven symbols, dlopen-loaded, ABI-versioned
+- [x] `selftest` reference runtime in C, exercising every part of the ABI
+- [x] Cross-compile toolchain with artifact caching — no Xcode project involved
+- [x] `build` — assembles a real `arm64-apple-ios` app bundle, verified in CI
+- [x] `sign` — identity and provisioning-profile discovery, inside-out codesigning
+- [x] `install` — device discovery and deploy via `devicectl`
+- [x] iOS shell written and typechecking: Metal renderer (4 pixel formats incl.
+      palettised), touch overlay, input router, lock-free audio ring buffer
+- [x] Layouts compile TOML → JSON and decode with the production Swift model, checked
+      in CI on real hardware-targeted builds
 
-## Next — one game, end to end
+## Next — first frame on real hardware
 
-The milestone that makes this real: **Diablo on an iPhone, start to finish.**
+Everything above is verified by compilation and by inspecting the artifacts. None of
+it has drawn a pixel on a phone. That is the next milestone, and it is deliberately
+the self-test runtime rather than a game:
 
-Chosen because DevilutionX already builds for iOS, is permissively licensed, has a tiny
-dependency tree, needs no JIT, and runs on an A13 without complaint. Everything the
-pipeline needs is exercised and nothing is load-bearing on unsolved problems.
-
-- [ ] Cross-compile toolchain (`arm64-apple-ios`, CMake, artifact cache)
-- [ ] `RuntimeHost` C ABI, with the DevilutionX adapter as the reference
-- [ ] Shell skeleton: library view, game session, Metal surface via SDL3
-- [ ] Touch control renderer that reads a layout TOML
-- [ ] Asset importer — Files app + `porthole serve` LAN handoff
-- [ ] `build` → Xcode project
-- [ ] `sign` / `install` with a free Apple ID over USB
+- [ ] Register the app id so a provisioning profile exists. Apple only issues these
+      through Xcode, so `porthole sign` currently stops with instructions. Automating
+      it needs `xcodebuild -allowProvisioningUpdates` against a generated project —
+      the one place a `.xcodeproj` may turn out to be unavoidable.
+- [ ] Run `selftest` on a device: test pattern visible, input lamps lighting, tone
+      audible, save state round-tripping
+- [ ] Seed-to-Documents copy on first launch
 - [ ] `refresh` for the 7-day re-sign
+- [ ] `porthole serve` — LAN asset handoff with a QR code
+
+Then the same pipeline with a real engine: **Diablo, start to finish.** DevilutionX
+already builds for iOS, is permissively licensed, has a tiny dependency tree, needs no
+JIT, and runs on an A13 without complaint.
+
+- [ ] Fetch-and-patch for runtimes with an upstream (everything so far builds from
+      sources in this repository)
+- [ ] SDL2 for iOS as a vendored dependency build
+- [ ] DevilutionX adapter against `RuntimeHost`
+- [ ] Asset verification against the recipe's declared layout at import time
 
 ## Then — breadth
 

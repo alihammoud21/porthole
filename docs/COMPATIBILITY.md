@@ -2,7 +2,7 @@
 
 # Compatibility
 
-27 recipes. A *family* recipe covers a whole class of game rather than one title,
+28 recipes. A *family* recipe covers a whole class of game rather than one title,
 so the real number of playable games is in the hundreds.
 
 Status is a promise to the next person, and contributors are asked not to inflate it:
@@ -64,6 +64,7 @@ The game was always data fed to an interpreter, and Porthole ships the interpret
 
 | Game | Year | Runtime | Status | Controls |
 |---|---|---|---|---|
+| **Porthole self-test** | — | Porthole self-test | `planned` | `selftest` |
 | **DOS games (generic)** *(family)* | — | DOSBox Staging | `planned` | `keyboard-overlay` |
 | **Godot games (generic)** *(family)* | — | Godot export template | `planned` | `passthrough` |
 | **LÖVE games (generic)** *(family)* | — | LÖVE | `planned` | `passthrough` |

@@ -1,0 +1,29 @@
+schema = 1
+id = "selftest"
+title = "Porthole self-test"
+runtime = "selftest"
+tier = 3
+status = "planned"
+layout = "selftest"
+
+# Not a real game, so there is nothing to detect. The marker file exists only so
+# `scan` can demonstrate a match against the fixture in tests/.
+[detect]
+require = ["porthole-selftest.marker"]
+
+[assets]
+target = "."
+include = ["*"]
+
+[expect]
+a17 = "display refresh, trivially"
+a13 = "display refresh, trivially"
+jit = "none"
+
+[notes]
+caveats = [
+  "This is the reference runtime, not a game. Build and install it first: if it runs,",
+  "the shell and the ABI work, and anything that breaks afterwards is an engine",
+  "adapter's fault rather than the plumbing's.",
+  "Hold any button to hear the test tone; the left stick bends its pitch.",
+]

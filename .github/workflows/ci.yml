@@ -66,3 +66,56 @@ jobs:
           python3 -m porthole list runtimes
           python3 -m porthole list layouts
           python3 -m porthole plan diablo || true   # exits 1 while unbuildable
+
+  # The real cross-compile. Needs an iOS SDK, so it cannot run on the Linux job.
+  build-ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Toolchain
+        run: |
+          python3 -m porthole doctor || true
+          xcrun --sdk iphoneos --show-sdk-version
+
+      # Catches a layout that parses as TOML and then fails to decode into the Swift
+      # struct the shell actually uses -- or places a control off the screen edge.
+      - name: Layouts decode with the Swift model
+        run: python3 tools/verify-layouts.py
+
+      - name: ABI header compiles as C11 and C++17
+        run: |
+          xcrun --sdk iphoneos clang -arch arm64 -mios-version-min=15.0 \
+            -std=c11 -Wall -Wextra -fsyntax-only -x c include/porthole_runtime.h
+          xcrun --sdk iphoneos clang++ -arch arm64 -mios-version-min=15.0 \
+            -std=c++17 -Wall -fsyntax-only -x c++ include/porthole_runtime.h
+
+      - name: Shell typechecks for arm64-apple-ios
+        run: |
+          xcrun --sdk iphoneos swiftc -typecheck -swift-version 5 \
+            -target arm64-apple-ios15.0 \
+            -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" \
+            -import-objc-header shell/Sources/Runtime/Porthole-Bridging-Header.h \
+            -Iinclude $(find shell/Sources -name '*.swift' | sort)
+
+      - name: Build the reference runtime end to end
+        run: python3 -m porthole build selftest
+
+      - name: Verify the bundle is a real iOS app
+        run: |
+          set -euo pipefail
+          APP=build/library/Porthole.app
+          file "$APP/Porthole" | grep -q 'Mach-O 64-bit executable arm64'
+          vtool -show-build "$APP/Porthole" | grep -q 'platform IOS'
+          plutil -lint "$APP/Info.plist"
+          plutil -lint "$APP/Frameworks/selftest.framework/Info.plist"
+          # All seven ABI symbols must be exported or dlsym finds nothing.
+          test "$(nm -gU "$APP/Frameworks/selftest.framework/selftest" \
+            | grep -c '_ph_')" -eq 7
+          # The rpath must point at Frameworks/ or dlopen resolves nothing.
+          otool -l "$APP/Porthole" | grep -q '@executable_path/Frameworks'
+          echo "bundle verified"
