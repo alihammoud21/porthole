@@ -43,6 +43,15 @@ cmake_args = [
   "-DBUILD_TESTING=OFF",
 ]
 
+# Porthole signs with the user's own certificate through `porthole sign`, so Xcode
+# must not try. Without this the build fails at the end with "Signing for
+# \"devilutionx\" requires a development team" after compiling everything.
+xcode_settings = [
+  "CODE_SIGNING_ALLOWED=NO",
+  "CODE_SIGNING_REQUIRED=NO",
+  "CODE_SIGN_IDENTITY=",
+]
+
 # The Xcode generator is the reliable choice for an iOS build; Ninja needs more
 # coaxing for multi-config Apple platforms.
 generator = "Xcode"
@@ -70,15 +79,25 @@ config = "Release"
 source = "src/adapter.cpp"
 
 [patches]
-series = []
+series = [
+  "01-libpng-apple-math-h.patch",
+  "02-fmt-consteval-clang17.patch",
+]
 
 [notes]
 text = """
 Remaining work, now that the dependency question is settled:
 
-1. DONE -- configures cleanly for arm64-ios. The only non-obvious flag is
-   CMAKE_POLICY_VERSION_MINIMUM=3.5, needed because CMake 4 dropped compatibility
-   with libpng's declared minimum. Target to build is `devilutionx`.
+1. DONE -- configures cleanly for arm64-ios. Two non-obvious flags, plus one patch:
+
+   - CMAKE_POLICY_VERSION_MINIMUM=3.5, because CMake 4 dropped compatibility with
+     libpng's declared minimum.
+   - CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET=15.0, because CMakeLists.txt
+     hardcodes 9.0 and Xcode 27 rejects it.
+   - 01-libpng-apple-math-h.patch, because libpng 1.6.38 includes the Carbon header
+     <fp.h> on anything Apple.
+
+   Target is `devilutionx`, Xcode generator, Release config, Xcode signing disabled.
 
 2. Write src/adapter.cpp. This is the real work. DevilutionX expects to own main()
    and the SDL event loop, and RuntimeHost requires ph_frame() to return promptly, so

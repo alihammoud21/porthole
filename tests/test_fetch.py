@@ -166,3 +166,42 @@ def test_sources_are_never_committed():
                      text=True).stdout.split()
     assert not [f for f in tracked if f.startswith(".cache/")], \
         "fetched upstream source must not be committed"
+
+
+# ───────────────────────── the DevilutionX patch series ─────────────────────────
+
+def test_devilutionx_patches_exist_and_are_declared():
+    """A declared patch that is not on disk fails the fetch, not the build."""
+    m = fetch.BuildManifest.load("devilutionx")
+    patch_dir = registry.repo_root() / "runtimes" / "devilutionx" / "patches"
+    for name in m.patches:
+        assert (patch_dir / name).is_file(), f"declared patch missing: {name}"
+
+
+def test_patches_are_small_and_scoped():
+    """A patch that rewrites a whole file is almost always a line-ending accident.
+
+    The first version of the libpng patch did exactly that: writing the file back
+    through Python normalised its CRLF endings, turning a 16-line insertion into a
+    53-line whole-file replacement.
+    """
+    patch_dir = registry.repo_root() / "runtimes"
+    for patch in patch_dir.glob("*/patches/*.patch"):
+        text = patch.read_text()
+        added = [l for l in text.splitlines() if l.startswith("+") and not l.startswith("+++")]
+        removed = [l for l in text.splitlines() if l.startswith("-") and not l.startswith("---")]
+        assert len(removed) <= 5, (
+            f"{patch.name} removes {len(removed)} lines — if the file was otherwise "
+            "unchanged this is a line-ending normalisation, not a real edit")
+        assert len(added) < 60, f"{patch.name} adds {len(added)} lines; keep patches small"
+
+
+def test_no_global_cflags_that_would_leak_into_assembly():
+    """Scoping lesson: a global -include leaked into libsodium's .S files and
+    produced a few hundred assembler errors. Workarounds belong in a patch scoped to
+    one target, not in project-wide flags."""
+    m = fetch.BuildManifest.load("devilutionx")
+    raw = (registry.repo_root() / "runtimes" / "devilutionx" / "build.toml").read_text()
+    assert "-include math.h" not in raw.split("[patches]")[0] or "cflags" not in raw, \
+        "a global -include flag is back; it will break assembly compilation"
+    assert m.patches, "the libpng workaround should be a patch, not a global flag"

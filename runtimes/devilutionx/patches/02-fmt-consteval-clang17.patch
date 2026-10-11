@@ -1,0 +1,26 @@
+diff --git a/3rdParty/libfmt/CMakeLists.txt b/3rdParty/libfmt/CMakeLists.txt
+index df2295fb7..0a1381fc7 100644
+--- a/3rdParty/libfmt/CMakeLists.txt
++++ b/3rdParty/libfmt/CMakeLists.txt
+@@ -24,3 +24,21 @@ else()
+   )
+ endif()
+ FetchContent_MakeAvailableExcludeFromAll(libfmt)
++
++# Porthole: fmt 10.0.0 does not compile with Clang 17 or newer.
++#
++# format-inl.h:1395 calls FMT_STRING("{:x}") in a context the compiler now
++# rejects: "call to consteval function 'fmt::basic_format_string<...>' is not a
++# constant expression". fmt fixed this in 10.1.0, but DevilutionX pins 10.0.0 by
++# URL hash, and bumping it risks API drift against DevilutionX's own call sites.
++#
++# fmt guards the macro with `#ifndef FMT_CONSTEVAL` precisely so it can be turned
++# off, and defining it empty is the same state fmt itself selects on compilers
++# where consteval is unusable -- it already does this for Apple clang below 14.
++#
++# PUBLIC, not PRIVATE: fmt is header-heavy, so the library and everything that
++# includes it must agree. Compiling fmt without consteval while its consumers
++# compile with it would be an ODR mismatch, which is worse than the original bug.
++if(APPLE)
++  target_compile_definitions(fmt PUBLIC FMT_CONSTEVAL=)
++endif()

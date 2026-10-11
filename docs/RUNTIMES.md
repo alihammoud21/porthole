@@ -83,6 +83,32 @@ real remaining work is one adapter file.
 Probe now reports upstream iOS platform files and vendored dependency directories
 first, because those two signals collapse most of the apparent work.
 
+### A worked example: what DevilutionX actually needed
+
+Documented in full because the general lesson is that a project advertising iOS
+support still does not build against a current SDK, and the reasons are never in the
+project's own code.
+
+| Error | Cause | Fix |
+|---|---|---|
+| `Compatibility with CMake < 3.5 has been removed` | vendored libpng declares an ancient `cmake_minimum_required` | `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` |
+| `deployment target is set to 9.0, but the range of supported versions is 15.0 to 27.0` | `CMakeLists.txt:384` hardcodes 9.0 inside `if(IOS)`, clobbering the command line | `-DCMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET=15.0` |
+| `Signing for "devilutionx" requires a development team` | CMake builds an `.app` and Xcode wants to sign it | `CODE_SIGNING_ALLOWED=NO` — Porthole signs separately |
+| `'fp.h' file not found` | libpng picks the classic-Mac branch because `TARGET_OS_MAC` is 1 on *all* Apple platforms | patch 01, via `FetchContent`'s `PATCH_COMMAND` |
+| 300+ assembler errors in libsodium `.S` files | the first attempt at the above used `-include math.h`, which the Xcode generator hoists into global `OTHER_CFLAGS` | fix the header instead of adding a flag |
+| `call to consteval function ... is not a constant expression` | fmt 10.0.0 vs Clang 17+; fixed upstream in 10.1.0, but the version is pinned by URL hash | patch 02, `FMT_CONSTEVAL=` (fmt's own documented escape hatch) |
+
+Two transferable lessons:
+
+**Target-scoped compiler flags are not reliable under the Xcode generator.** Both
+`CMAKE_C_FLAGS` and a `$<COMPILE_LANGUAGE:C>` `target_compile_options` ended up in
+global `OTHER_CFLAGS`, where a `-include` meant for one C library reached another
+library's hand-written assembly. Prefer patching the source over adding a flag.
+
+**Patch the dependency, not the project.** `FetchContent_Declare` takes a
+`PATCH_COMMAND`, so a patch to the *wrapper* can fix a transitively fetched
+dependency without vendoring it.
+
 ## The RuntimeHost interface
 
 Every runtime is adapted to one C ABI so the shell doesn't care what it's driving:

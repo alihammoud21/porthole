@@ -1,0 +1,35 @@
+diff --git a/3rdParty/libpng/CMakeLists.txt b/3rdParty/libpng/CMakeLists.txt
+index b0d291f92..25568e432 100644
+--- a/3rdParty/libpng/CMakeLists.txt
++++ b/3rdParty/libpng/CMakeLists.txt
+@@ -24,9 +24,30 @@ if(APPLE AND "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "arm64")
+ endif()
+ 
+ include(FetchContent)
++# Porthole: libpng 1.6.38 does not build for any modern Apple SDK.
++#
++# pngpriv.h chooses between <fp.h> and <math.h> on `defined(TARGET_OS_MAC)`, but
++# TargetConditionals.h defines TARGET_OS_MAC as 1 for *every* Apple platform, iOS
++# included. So it takes the classic-Mac branch and includes <fp.h>, a Carbon header
++# absent since Mac OS 9: "fatal error: 'fp.h' file not found".
++#
++# Fixed at the source rather than with a compiler flag. `-include math.h` also
++# works, but neither CMAKE_C_FLAGS nor a target-scoped
++# $<COMPILE_LANGUAGE:C> option can be confined to libpng under the Xcode
++# generator -- it hoists both into global OTHER_CFLAGS, where the flag reaches
++# libsodium's .S files and the assembler reads math.h's typedefs as instructions.
++#
++# sed -i.bak is the portable spelling across BSD and GNU sed, and this only runs
++# on Apple hosts.
++if(APPLE)
++  set(PORTHOLE_LIBPNG_PATCH
++    PATCH_COMMAND sed -i.bak "s|include <fp.h>|include <math.h>|" <SOURCE_DIR>/pngpriv.h)
++endif()
++
+ FetchContent_Declare(libpng
+   URL https://github.com/glennrp/libpng/archive/0a158f3506502dfa23edfc42790dfaed82efba17.tar.gz
+   URL_HASH MD5=6d705417242732e8e081bff752c98c18
++  ${PORTHOLE_LIBPNG_PATCH}
+ )
+ FetchContent_MakeAvailableExcludeFromAll(libpng)
+ 
