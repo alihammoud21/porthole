@@ -249,7 +249,7 @@ saves as portable: iCloud sync, export to Files, and import from a desktop insta
 ## Quickstart
 
 ```bash
-git clone https://github.com/YOURNAME/porthole
+git clone https://github.com/alihammoud21/porthole
 cd porthole
 python3 -m porthole scan ~/path/to/your/game     # works today
 python3 -m porthole plan morrowind               # works today

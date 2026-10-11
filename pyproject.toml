@@ -31,9 +31,9 @@ dev = ["pytest>=7"]
 porthole = "porthole.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/YOURNAME/porthole"
-Documentation = "https://github.com/YOURNAME/porthole/tree/main/docs"
-Issues = "https://github.com/YOURNAME/porthole/issues"
+Homepage = "https://github.com/alihammoud21/porthole"
+Documentation = "https://github.com/alihammoud21/porthole/tree/main/docs"
+Issues = "https://github.com/alihammoud21/porthole/issues"
 
 [tool.setuptools]
 packages = ["porthole"]

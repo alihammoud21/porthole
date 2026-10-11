@@ -1,11 +1,11 @@
 blank_issues_enabled: true
 contact_links:
   - name: Licensing or legal question
-    url: https://github.com/YOURNAME/porthole/blob/main/docs/LEGAL.md
+    url: https://github.com/alihammoud21/porthole/blob/main/docs/LEGAL.md
     about: Read the project's legal posture first — it answers most of these.
   - name: Security vulnerability
-    url: https://github.com/YOURNAME/porthole/security/advisories/new
+    url: https://github.com/alihammoud21/porthole/security/advisories/new
     about: Report privately, not as a public issue.
   - name: "Request: where do I get game files?"
-    url: https://github.com/YOURNAME/porthole/blob/main/docs/LEGAL.md
+    url: https://github.com/alihammoud21/porthole/blob/main/docs/LEGAL.md
     about: We don't help with this, and asking in an issue will get it closed.
