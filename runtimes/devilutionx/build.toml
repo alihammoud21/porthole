@@ -24,21 +24,45 @@ targets = ["libdevilutionx"]
 # libsodium, libpng and libfmt are all fetched and linked statically by the build
 # itself -- and it already sets DISABLE_ZERO_TIER. Setting CMAKE_SYSTEM_NAME is
 # therefore nearly the whole configuration.
+# Verified: this configures successfully against the iOS 27.0 SDK with CMake 4.3.2.
+# Configure takes about 3.5 minutes because it resolves every dependency from source.
 cmake_args = [
   "-DCMAKE_SYSTEM_NAME=iOS",
   "-DCMAKE_OSX_ARCHITECTURES=arm64",
-  # Upstream's ios.cmake sets a deployment target of 9.0. Porthole's floor is 15.0
-  # (TrollStore's range, and therefore the JIT path), so this has to override it.
   "-DCMAKE_OSX_DEPLOYMENT_TARGET=15.0",
+  # Not redundant with the line above. CMakeLists.txt:384 hardcodes
+  # `set(CMAKE_OSX_DEPLOYMENT_TARGET "9.0")` inside its `if(IOS)` block, which
+  # clobbers the command-line value -- and Xcode 27 refuses anything below 15.0
+  # ("the range of supported deployment target versions is 15.0 to 27.0.x"). Setting
+  # the Xcode attribute directly wins, and avoids carrying a patch for one line.
+  "-DCMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET=15.0",
+  # Required with CMake 4.x. The vendored libpng declares
+  # `cmake_minimum_required(VERSION <3.5)`, and CMake 4 removed compatibility with
+  # anything below 3.5. Without this the configure dies in _deps/libpng-src.
+  "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
   "-DBUILD_TESTING=OFF",
 ]
 
+# The Xcode generator is the reliable choice for an iOS build; Ninja needs more
+# coaxing for multi-config Apple platforms.
+generator = "Xcode"
+config = "Release"
+
 # No [[dependencies]] entries on purpose. An earlier version of this file listed
 # SDL2, libsodium, bzip2 and zlib as things Porthole would have to cross-compile and
-# make findable. Reading the fetched source showed that is simply wrong: every
-# dependency is vendored under 3rdParty/ and pulled in with add_subdirectory /
-# FetchContent. `porthole probe` exists to catch exactly this kind of mistaken
-# assumption before someone spends a weekend on it.
+# make findable. Reading the fetched source showed that is wrong, and running the
+# configure confirmed it. Observed during a real iOS configure:
+#
+#   SDL2, SDL_image, libpng, SDL_audiolib, libsodium, simpleini
+#     -> "static library from source", built by the project itself
+#   bzip2
+#     -> found IN THE iOS SDK as libbz2.tbd (1.0.8). An earlier note here claimed it
+#        needed a cross-compile; it does not.
+#   zlib
+#     -> also in the SDK, as expected
+#
+# `porthole probe` exists to catch this kind of mistaken assumption before someone
+# spends a weekend on it.
 
 [adapter]
 # The per-engine RuntimeHost adapter. Not written yet, and now the *only* substantial
@@ -52,9 +76,9 @@ series = []
 text = """
 Remaining work, now that the dependency question is settled:
 
-1. Configure and build with CMAKE_SYSTEM_NAME=iOS. Upstream's platform file handles
-   the dependency tree; expect a long first build because it compiles SDL2 and
-   friends from source.
+1. DONE -- configures cleanly for arm64-ios. The only non-obvious flag is
+   CMAKE_POLICY_VERSION_MINIMUM=3.5, needed because CMake 4 dropped compatibility
+   with libpng's declared minimum. Target to build is `devilutionx`.
 
 2. Write src/adapter.cpp. This is the real work. DevilutionX expects to own main()
    and the SDL event loop, and RuntimeHost requires ph_frame() to return promptly, so
