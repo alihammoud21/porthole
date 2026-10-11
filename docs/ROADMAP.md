@@ -50,7 +50,12 @@ JIT, and runs on an A13 without complaint.
 - [x] Fetch-and-patch for runtimes with an upstream, with strict commit pinning
 - [x] ~~SDL2 for iOS as a vendored dependency build~~ — not needed. DevilutionX
       builds all twenty of its dependencies itself; `porthole probe` found this
-- [ ] DevilutionX adapter against `RuntimeHost`
+- [x] **DevilutionX compiles for arm64-ios, zero errors.** Two patches were needed
+      (libpng's `fp.h`, fmt's consteval) — see docs/RUNTIMES.md for the full sequence.
+      Produces `liblibdevilutionx.a` plus 10 dependency libraries, 14.5 MB total.
+- [ ] DevilutionX adapter against `RuntimeHost` — the only remaining piece for the
+      first real game. Link the 11 static libraries and drive the already-exported
+      `devilution::DiabloMain(int, char**)`, inverting its ownership of the main loop.
 - [ ] Asset verification against the recipe's declared layout at import time
 
 ## Then — breadth

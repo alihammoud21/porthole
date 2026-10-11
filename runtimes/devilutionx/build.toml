@@ -99,7 +99,18 @@ Remaining work, now that the dependency question is settled:
 
    Target is `devilutionx`, Xcode generator, Release config, Xcode signing disabled.
 
-2. Write src/adapter.cpp. This is the real work. DevilutionX expects to own main()
+   VERIFIED: builds clean, zero errors, against the iOS 27.0 SDK. Produces a 4.1 MB
+   arm64 Mach-O at minos 15.0, and -- more usefully -- the engine as a static library:
+
+     liblibdevilutionx.a   9.5 MB, 168 objects, 1784 global text symbols
+     plus SDL2, SDL2main, SDL_image, SDL_audiolib, libpng16, libsodium, libmpq,
+     libsmackerdec, PKWare, fmt       14.5 MB for all 11 libraries
+
+   The adapter's hook is already exported:
+     devilution::DiabloMain(int, char**)
+
+2. Write src/adapter.cpp. This is now the ONLY work left, and the ground is prepared:
+   link the 11 static libraries above and drive `devilution::DiabloMain`. DevilutionX expects to own main()
    and the SDL event loop, and RuntimeHost requires ph_frame() to return promptly, so
    the adapter has to invert that -- either drive the engine a frame at a time or run
    it on its own thread and marshal the framebuffer across.
