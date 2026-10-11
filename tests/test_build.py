@@ -145,3 +145,33 @@ def test_ios_floor_covers_trollstore():
     """
     major = int(build.IOS_MIN.split(".")[0])
     assert major <= 15, "deployment floor must stay low enough for TrollStore users"
+
+
+# ───────────────────────────── repository hygiene ─────────────────────────────
+
+def test_first_party_runtime_sources_are_tracked_by_git():
+    """A build that works locally but not from a clean checkout is the worst kind.
+
+    `.gitignore` once carried `/runtimes/*/src/` -- meant for fetched upstreams --
+    which silently excluded the selftest runtime's own source. The local build kept
+    working because the file was on disk, and only CI noticed.
+    """
+    import subprocess
+
+    root = registry.repo_root()
+    sources = sorted((root / "runtimes").glob("*/src/*.c")) + \
+        sorted((root / "runtimes").glob("*/src/*.cpp"))
+    assert sources, "no first-party runtime sources found at all"
+
+    tracked = set(subprocess.run(
+        ["git", "ls-files"], cwd=root, capture_output=True, text=True
+    ).stdout.split())
+
+    missing = [
+        str(s.relative_to(root)) for s in sources
+        if str(s.relative_to(root)) not in tracked
+    ]
+    assert not missing, (
+        f"runtime sources exist on disk but are not tracked by git: {missing}. "
+        "Check .gitignore."
+    )

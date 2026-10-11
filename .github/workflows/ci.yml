@@ -84,8 +84,8 @@ jobs:
 
       # Catches a layout that parses as TOML and then fails to decode into the Swift
       # struct the shell actually uses -- or places a control off the screen edge.
-      - name: Layouts decode with the Swift model
-        run: python3 tools/verify-layouts.py
+      - name: Swift verification harnesses (layouts, seeder)
+        run: python3 tools/verify-swift.py
 
       - name: ABI header compiles as C11 and C++17
         run: |

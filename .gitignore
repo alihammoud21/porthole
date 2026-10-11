@@ -11,8 +11,10 @@ xcuserdata/
 DerivedData/
 *.xcworkspace/xcshareddata/
 
-# Runtime sources fetched at build time — never vendored
-/runtimes/*/src/
+# Upstream runtime sources are fetched into .cache/sources/ (ignored above) and are
+# never vendored. `runtimes/<id>/src/` is therefore always FIRST-PARTY source that
+# belongs in the repository -- do not add an ignore rule for it. An earlier rule here
+# silently excluded the selftest runtime, which only CI noticed.
 /runtimes/*/_build/
 
 # Python

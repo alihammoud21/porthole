@@ -52,7 +52,12 @@ struct LibraryView: View {
                 }
             }
         }
-        .onAppear { games = InstalledGame.discover() }
+        .onAppear {
+            // Bundled games live in a read-only bundle that is replaced on every
+            // re-sign, so they are copied into Documents before the library is read.
+            LibrarySeeder.seed()
+            games = InstalledGame.discover()
+        }
         .fullScreenCover(item: $playing) { game in
             GameView(game: game) {
                 playing = nil
