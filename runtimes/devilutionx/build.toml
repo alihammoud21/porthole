@@ -1,0 +1,74 @@
+schema = 1
+runtime = "devilutionx"
+
+# DevilutionX is the first real engine behind the RuntimeHost ABI, chosen because it
+# already builds for iOS upstream, is permissively licensed (Unlicense), needs no JIT,
+# and runs at 60fps on an A13. Nothing on its path is load-bearing on an unsolved
+# problem.
+
+[source]
+git = "https://github.com/diasurgical/DevilutionX"
+tag = "1.5.4"
+# Verified against the remote: `git ls-remote --tags` resolves 1.5.4 to this commit
+# ("Bump version to 1.5.4", 2025-02-08). A tag can be moved; a commit cannot, and the
+# thing being built is somebody's ability to play a game they own.
+commit = "9f30593b4c2e706d6d6a66edfbc3aa6ada8861b4"
+submodules = true
+
+[build]
+system = "cmake"
+targets = ["libdevilutionx"]
+
+# Upstream already carries CMake/platforms/ios.cmake, which `if(IOS)` includes. It
+# turns off every DEVILUTIONX_SYSTEM_* flag, so SDL2, SDL_image, SDL_audiolib,
+# libsodium, libpng and libfmt are all fetched and linked statically by the build
+# itself -- and it already sets DISABLE_ZERO_TIER. Setting CMAKE_SYSTEM_NAME is
+# therefore nearly the whole configuration.
+cmake_args = [
+  "-DCMAKE_SYSTEM_NAME=iOS",
+  "-DCMAKE_OSX_ARCHITECTURES=arm64",
+  # Upstream's ios.cmake sets a deployment target of 9.0. Porthole's floor is 15.0
+  # (TrollStore's range, and therefore the JIT path), so this has to override it.
+  "-DCMAKE_OSX_DEPLOYMENT_TARGET=15.0",
+  "-DBUILD_TESTING=OFF",
+]
+
+# No [[dependencies]] entries on purpose. An earlier version of this file listed
+# SDL2, libsodium, bzip2 and zlib as things Porthole would have to cross-compile and
+# make findable. Reading the fetched source showed that is simply wrong: every
+# dependency is vendored under 3rdParty/ and pulled in with add_subdirectory /
+# FetchContent. `porthole probe` exists to catch exactly this kind of mistaken
+# assumption before someone spends a weekend on it.
+
+[adapter]
+# The per-engine RuntimeHost adapter. Not written yet, and now the *only* substantial
+# piece of work left for this runtime.
+source = "src/adapter.cpp"
+
+[patches]
+series = []
+
+[notes]
+text = """
+Remaining work, now that the dependency question is settled:
+
+1. Configure and build with CMAKE_SYSTEM_NAME=iOS. Upstream's platform file handles
+   the dependency tree; expect a long first build because it compiles SDL2 and
+   friends from source.
+
+2. Write src/adapter.cpp. This is the real work. DevilutionX expects to own main()
+   and the SDL event loop, and RuntimeHost requires ph_frame() to return promptly, so
+   the adapter has to invert that -- either drive the engine a frame at a time or run
+   it on its own thread and marshal the framebuffer across.
+
+   DevilutionX renders through SDL, so the adapter can hand the shell an SDL surface's
+   pixels directly. It is a palettised engine, which is why the ABI carries
+   PH_PIX_PAL8 and the Metal renderer expands palettes on the GPU.
+
+3. Map ph_input onto DevilutionX's input. It is a pointer-driven isometric game, so
+   the isometric-touch layout should mostly work unchanged -- tap to move, tap to
+   attack, hold to keep attacking.
+
+4. Point the asset root at the user's DIABDAT.MPQ. Upstream already searches a
+   configurable directory, so this should be a ph_config pass-through.
+"""

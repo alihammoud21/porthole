@@ -9,7 +9,8 @@ import sys
 from pathlib import Path
 
 from . import (__version__, bootstrap as bootstrap_mod, build as build_mod,
-               plan as plan_mod, registry, scan as scan_mod, sign as sign_mod, ui)
+               fetch as fetch_mod, plan as plan_mod, registry, scan as scan_mod,
+               sign as sign_mod, ui)
 
 
 # ───────────────────────────────── scan ─────────────────────────────────
@@ -356,6 +357,65 @@ def cmd_install(args) -> int:
     return 0
 
 
+# ───────────────────────────── fetch / probe ─────────────────────────────
+
+def cmd_fetch(args) -> int:
+    try:
+        result = fetch_mod.fetch(args.runtime, force=args.force)
+    except fetch_mod.FetchError as e:
+        ui.error(str(e))
+        return 1
+
+    print(ui.heading("Fetched" if not result.reused else "Already fetched"))
+    print(ui.field("runtime", result.runtime, 14))
+    print(ui.field("tag", result.tag, 14))
+    print(ui.field("commit", result.commit, 14))
+    print(ui.field("path", str(result.path), 14))
+    print(ui.field("size", ui.human_bytes(result.size_bytes), 14))
+    if result.patches_applied:
+        print(ui.field("patches", ", ".join(result.patches_applied), 14))
+
+    manifest = fetch_mod.BuildManifest.load(args.runtime)
+    if not manifest.commit:
+        print(f"\n  {ui.yellow('Not pinned.')} Record this in build.toml:")
+        print(f"    commit = \"{result.commit}\"")
+
+    print(f"\n{ui.dim(f'  next:  porthole probe {result.runtime}')}\n")
+    return 0
+
+
+def cmd_probe(args) -> int:
+    try:
+        result = fetch_mod.probe(args.runtime)
+    except fetch_mod.FetchError as e:
+        ui.error(str(e))
+        return 1
+
+    print(ui.heading(f"{result.runtime}: what stands between this and an iOS build"))
+    print(ui.field("cmake", "yes" if result.has_cmake else ui.red("no"), 14))
+
+    if result.declared_deps:
+        print(ui.heading("Declared dependencies"))
+        for d in result.declared_deps:
+            pin = f" {d.tag}" if d.tag else ""
+            print(f"  {ui.bold(d.name)}{pin}")
+            if d.note:
+                print(f"    {ui.dim(d.note)}")
+
+    if result.missing_tools:
+        print(ui.heading("Missing tools"))
+        for t in result.missing_tools:
+            print(f"  {ui.red('x')} {t}")
+
+    if result.notes:
+        print(ui.heading("Findings"))
+        for n in result.notes:
+            print(f"  {ui.dim('·')} {n}")
+
+    print()
+    return 0
+
+
 # ───────────────────────────── bootstrap ─────────────────────────────
 
 def cmd_bootstrap(args) -> int:
@@ -437,6 +497,16 @@ def main(argv=None) -> int:
 
     p = sub.add_parser("doctor", help="check the local toolchain")
     p.set_defaults(fn=cmd_doctor)
+
+    p = sub.add_parser("fetch", help="clone an upstream runtime at its pinned commit")
+    p.add_argument("runtime", help="runtime id (see: porthole list runtimes)")
+    p.add_argument("--force", action="store_true", help="re-clone from scratch")
+    p.set_defaults(fn=cmd_fetch)
+
+    p = sub.add_parser("probe",
+                       help="report what a fetched runtime needs before it will build")
+    p.add_argument("runtime")
+    p.set_defaults(fn=cmd_probe)
 
     p = sub.add_parser("build", help="cross-compile the runtime and assemble an app")
     p.add_argument("game", help="recipe id (see: porthole list games)")

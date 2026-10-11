@@ -26,6 +26,63 @@ plays = ["Diablo", "Diablo: Hellfire"]
 builds matter more here than freshness, because the thing being built is someone's
 ability to play a game they own.
 
+## Fetching an upstream
+
+Runtimes with an upstream are **fetched, never vendored**. Sources land in
+`.cache/sources/<id>/`, which is gitignored, and a CI invariant rejects any attempt to
+commit them. That is partly disk hygiene and partly policy — the project promises never
+to mirror contested decompilation source, and the cleanest way to keep that promise is
+to have no mechanism for vendoring anything.
+
+Each upstream runtime gets a `runtimes/<id>/build.toml`:
+
+```toml
+schema = 1
+runtime = "devilutionx"
+
+[source]
+git = "https://github.com/diasurgical/DevilutionX"
+tag = "1.5.4"
+# Verified against the remote. A tag can be moved; a commit cannot.
+commit = "9f30593b4c2e706d6d6a66edfbc3aa6ada8861b4"
+submodules = true
+
+[build]
+system = "cmake"
+targets = ["libdevilutionx"]
+cmake_args = ["-DCMAKE_SYSTEM_NAME=iOS", "-DCMAKE_OSX_ARCHITECTURES=arm64"]
+
+[adapter]
+source = "src/adapter.cpp"
+
+[patches]
+series = ["01-expose-framebuffer.patch"]
+```
+
+```bash
+porthole fetch devilutionx    # clone at the pin, apply the patch series
+porthole probe devilutionx    # report what still stands between it and a build
+```
+
+**Pinning is strict.** The fetch fails if the tag no longer resolves to the recorded
+commit. Tags get moved; the thing being built is somebody's ability to play a game
+they own, and refusing to build beats silently building different code than last week.
+
+### Probe before you plan
+
+`porthole probe` reads a fetched source and reports what it actually needs. Run it
+before estimating anything.
+
+It exists because of a mistake worth repeating as a warning. DevilutionX's manifest
+originally declared SDL2, libsodium, bzip2 and zlib as dependencies Porthole would
+have to cross-compile and make findable — a week of work. Reading the fetched source
+showed that upstream already ships `CMake/platforms/ios.cmake`, which turns off every
+`DEVILUTIONX_SYSTEM_*` flag and builds all twenty vendored dependencies itself. The
+real remaining work is one adapter file.
+
+Probe now reports upstream iOS platform files and vendored dependency directories
+first, because those two signals collapse most of the apparent work.
+
 ## The RuntimeHost interface
 
 Every runtime is adapted to one C ABI so the shell doesn't care what it's driving:
