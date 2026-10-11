@@ -10,7 +10,7 @@ from pathlib import Path
 
 from . import (__version__, bootstrap as bootstrap_mod, build as build_mod,
                fetch as fetch_mod, plan as plan_mod, registry, scan as scan_mod,
-               sign as sign_mod, ui)
+               serve as serve_mod, sign as sign_mod, ui)
 
 
 # ───────────────────────────────── scan ─────────────────────────────────
@@ -357,6 +357,46 @@ def cmd_install(args) -> int:
     return 0
 
 
+# ───────────────────────────────── serve ─────────────────────────────────
+
+def cmd_serve(args) -> int:
+    """Hand a game directory to the phone over the LAN."""
+    root = Path(args.path).expanduser()
+    try:
+        server = serve_mod.serve(root, port=args.port, hash_files=not args.no_hash)
+    except NotADirectoryError:
+        ui.error(f"not a directory: {root}")
+        return 2
+    except OSError as e:
+        ui.error(f"could not start the server: {e}")
+        return 1
+
+    m = server.manifest
+    print(ui.heading("Serving"))
+    print(ui.field("directory", str(root), 14))
+    print(ui.field("files", f"{len(m.files):,}", 14))
+    print(ui.field("size", ui.human_bytes(m.total_bytes), 14))
+    print()
+    print(f"  {ui.bold(server.url)}")
+    print()
+    print(ui.dim("  Open that on the phone, or paste it into Porthole's importer."))
+    print(ui.dim("  The token is required; requests without it get a 404."))
+
+    if shutil.which("qrencode"):
+        print()
+        subprocess.run(["qrencode", "-t", "ANSIUTF8", "-m", "2", server.url])
+    else:
+        print(ui.dim("  (install qrencode for a scannable QR code: brew install qrencode)"))
+
+    print(f"\n{ui.dim('  Ctrl-C to stop.')}\n")
+    try:
+        server.thread.join()
+    except KeyboardInterrupt:
+        print(ui.dim("  stopping…"))
+        server.stop()
+    return 0
+
+
 # ───────────────────────────── fetch / probe ─────────────────────────────
 
 def cmd_fetch(args) -> int:
@@ -497,6 +537,14 @@ def main(argv=None) -> int:
 
     p = sub.add_parser("doctor", help="check the local toolchain")
     p.set_defaults(fn=cmd_doctor)
+
+    p = sub.add_parser("serve",
+                       help="hand a game directory to the phone over the LAN")
+    p.add_argument("path", help="directory containing your game files")
+    p.add_argument("--port", type=int, default=0, help="default: any free port")
+    p.add_argument("--no-hash", action="store_true",
+                   help="skip fingerprints (faster for very large directories)")
+    p.set_defaults(fn=cmd_serve)
 
     p = sub.add_parser("fetch", help="clone an upstream runtime at its pinned commit")
     p.add_argument("runtime", help="runtime id (see: porthole list runtimes)")

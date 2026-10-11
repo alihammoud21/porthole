@@ -37,15 +37,16 @@ the self-test runtime rather than a game:
       audible, save state round-tripping
 - [ ] Seed-to-Documents copy on first launch
 - [ ] `refresh` for the 7-day re-sign
-- [ ] `porthole serve` — LAN asset handoff with a QR code
+- [x] `porthole serve` — LAN asset handoff, token-gated and read-only, with a
+      fingerprint manifest so a truncated transfer is caught at import
 
 Then the same pipeline with a real engine: **Diablo, start to finish.** DevilutionX
 already builds for iOS, is permissively licensed, has a tiny dependency tree, needs no
 JIT, and runs on an A13 without complaint.
 
-- [ ] Fetch-and-patch for runtimes with an upstream (everything so far builds from
-      sources in this repository)
-- [ ] SDL2 for iOS as a vendored dependency build
+- [x] Fetch-and-patch for runtimes with an upstream, with strict commit pinning
+- [x] ~~SDL2 for iOS as a vendored dependency build~~ — not needed. DevilutionX
+      builds all twenty of its dependencies itself; `porthole probe` found this
 - [ ] DevilutionX adapter against `RuntimeHost`
 - [ ] Asset verification against the recipe's declared layout at import time
 

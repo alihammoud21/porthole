@@ -151,8 +151,27 @@ The app arrives nearly empty and pulls assets afterwards. Four ways in:
 
 1. **Files app** — drag the folder into `On My iPhone → Porthole`. Simplest.
 2. **AirDrop** — send an archive; the app registers as a handler.
-3. **Local handoff** — `porthole serve ~/Morrowind` starts a one-shot HTTP server on
-   your LAN and shows a QR code. Fastest for multi-gigabyte games.
+3. **Local handoff** — `porthole serve ~/Morrowind` serves the directory over HTTP on
+   your LAN at wire speed. Fastest by a wide margin for multi-gigabyte games.
+
+   ```console
+   $ porthole serve ~/GOG/Diablo
+   Serving
+     directory     /Users/you/GOG/Diablo
+     files         2
+     size          517.0 MB
+
+     http://192.168.2.133:52831/syhkfmmtgX0UogDp
+   ```
+
+   The URL carries a random token and requests without it get a 404 — this is your
+   game directory on a network you may not control, so an open directory listing is
+   not a reasonable default. It is read-only, confined to that one directory, and
+   refuses writes. A QR code is shown if `qrencode` is installed.
+
+   It also serves `manifest.json` listing every file with its size and a fingerprint,
+   so the app can verify a transfer finished rather than discovering a truncated
+   asset at launch.
 4. **iCloud Drive** — put it in the Porthole folder and import on device.
 
 Imported assets are verified against the recipe's expected layout, so a half-finished
