@@ -14,13 +14,23 @@ from __future__ import annotations
 
 import plistlib
 import re
+from datetime import datetime, timezone
 import shutil
 import subprocess
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
-PROFILE_DIR = Path.home() / "Library/MobileDevice/Provisioning Profiles"
+# Xcode 16 moved managed provisioning profiles out of the legacy location that every
+# older guide still cites. Both are searched, newest first, because a machine can have
+# profiles in either depending on how long Xcode has been installed.
+PROFILE_DIRS = [
+    Path.home() / "Library/Developer/Xcode/UserData/Provisioning Profiles",
+    Path.home() / "Library/MobileDevice/Provisioning Profiles",
+]
+
+# Kept for messages that tell the user where to look.
+PROFILE_DIR = PROFILE_DIRS[0]
 
 
 class SignError(RuntimeError):
@@ -33,12 +43,49 @@ class SignError(RuntimeError):
 class Identity:
     sha1: str
     name: str
+    team_id: str = ""
 
     @property
     def is_free_account(self) -> bool:
         # Paid accounts get "Apple Distribution" / "iPhone Distribution"; free Apple
         # IDs only ever get a development certificate.
         return "Development" in self.name
+
+
+def _team_ids_by_cn() -> dict[str, str]:
+    """Map certificate common name to Team ID, read from the certificate itself.
+
+    The Team ID lives in the subject's **OU** field. It is tempting to parse it out of
+    the common name instead -- `Apple Development: you@example.com (XXXXXXXXXX)` looks
+    exactly like it contains one -- but for `Apple Development` certificates that
+    parenthetical is the *certificate* id, not the team. Reading it from there yields
+    a plausible-looking wrong value and xcodebuild then fails with
+    "No Account for Team ...", which sends you looking in entirely the wrong place.
+    """
+    try:
+        pem = subprocess.run(
+            ["security", "find-certificate", "-a", "-p"],
+            capture_output=True, text=True, check=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return {}
+
+    mapping: dict[str, str] = {}
+    blocks = re.findall(
+        r"-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----", pem, re.S)
+    for block in blocks:
+        try:
+            subject = subprocess.run(
+                ["openssl", "x509", "-noout", "-subject"],
+                input=block, capture_output=True, text=True, check=True,
+            ).stdout
+        except (OSError, subprocess.CalledProcessError):
+            continue
+        cn = re.search(r"CN\s*=\s*([^,/]+)", subject)
+        ou = re.search(r"OU\s*=\s*([A-Z0-9]{10})", subject)
+        if cn and ou:
+            mapping[cn.group(1).strip()] = ou.group(1)
+    return mapping
 
 
 def identities() -> list[Identity]:
@@ -50,11 +97,14 @@ def identities() -> list[Identity]:
     except (OSError, subprocess.CalledProcessError) as e:
         raise SignError("could not read the keychain") from e
 
+    teams = _team_ids_by_cn()
     found = []
     for line in out.splitlines():
         m = re.search(r"\)\s+([0-9A-F]{40})\s+\"(.+)\"", line)
         if m and ("Apple Develop" in m.group(2) or "Apple Distribution" in m.group(2)):
-            found.append(Identity(sha1=m.group(1), name=m.group(2)))
+            name = m.group(2)
+            found.append(Identity(
+                sha1=m.group(1), name=name, team_id=teams.get(name, "")))
     return found
 
 
@@ -104,12 +154,13 @@ def _decode_profile(path: Path) -> dict | None:
 
 
 def profiles() -> list[Profile]:
-    if not PROFILE_DIR.is_dir():
-        return []
     found = []
-    for p in sorted(PROFILE_DIR.glob("*.mobileprovision")):
-        if (plist := _decode_profile(p)) is not None:
-            found.append(Profile(path=p, plist=plist))
+    for directory in PROFILE_DIRS:
+        if not directory.is_dir():
+            continue
+        for p in sorted(directory.glob("*.mobileprovision")):
+            if (plist := _decode_profile(p)) is not None:
+                found.append(Profile(path=p, plist=plist))
     return found
 
 
@@ -205,14 +256,15 @@ def sign(app: Path, identity: Identity | None = None,
     _codesign(identity, app, entitlements=ent_path)
     ent_path.unlink(missing_ok=True)
 
+    # plistlib returns naive datetimes, and plist dates are UTC. Subtracting an
+    # aware `now()` from one raises TypeError -- which, when swallowed, silently
+    # disabled the 7-day expiry warning that free-account users most need to see.
     days = None
-    if profile.expires is not None:
-        from datetime import datetime, timezone
-        try:
-            delta = profile.expires - datetime.now(timezone.utc)
-            days = delta.days
-        except TypeError:
-            days = None
+    if isinstance(profile.expires, datetime):
+        expires = profile.expires
+        if expires.tzinfo is None:
+            expires = expires.replace(tzinfo=timezone.utc)
+        days = (expires - datetime.now(timezone.utc)).days
 
     return SignResult(
         app=app, identity=identity, profile=profile,
@@ -269,6 +321,14 @@ class Device:
     identifier: str
     name: str
     os_version: str
+    model: str = ""
+    is_hardware: bool = False
+    is_connected: bool = False
+
+    @property
+    def label(self) -> str:
+        kind = self.model or ("device" if self.is_hardware else "simulator")
+        return f"{self.name} ({kind}, iOS {self.os_version})"
 
 
 def devices() -> list[Device]:
@@ -292,26 +352,51 @@ def devices() -> list[Device]:
     for d in data.get("result", {}).get("devices", []):
         props = d.get("deviceProperties", {})
         hw = d.get("hardwareProperties", {})
+        conn = d.get("connectionProperties", {})
         if hw.get("platform") != "iOS":
             continue
+
+        # `isProductionFused` is the reliable tell for real hardware. A Simulator
+        # appears here with transportType "sameMachine" and no fuse property, and is
+        # otherwise indistinguishable from a phone.
+        is_hardware = bool(hw.get("isProductionFused")) and \
+            conn.get("transportType") != "sameMachine"
+
         found.append(Device(
             identifier=d.get("identifier", "?"),
             name=props.get("name", "iPhone"),
             os_version=props.get("osVersionNumber", "?"),
+            model=hw.get("productType", ""),
+            is_hardware=is_hardware,
+            is_connected=conn.get("tunnelState") == "connected",
         ))
+
+    # Real connected hardware first; a Simulator is a last resort, never a default.
+    found.sort(key=lambda d: (not (d.is_hardware and d.is_connected),
+                              not d.is_hardware, not d.is_connected))
     return found
 
 
-def install(app: Path, device: Device | None = None) -> str:
+def install(app: Path, device: Device | None = None,
+            allow_simulator: bool = False) -> str:
     targets = devices()
-    if not targets:
+    usable = [d for d in targets
+              if d.is_connected and (d.is_hardware or allow_simulator)]
+
+    if not usable:
+        detail = ""
+        if targets:
+            detail = "\n\n  Seen but not usable:\n" + "\n".join(
+                f"    {d.label} — "
+                + ("not connected" if not d.is_connected else "simulator")
+                for d in targets)
         raise SignError(
-            "no iPhone connected.\n\n"
+            "no connected iPhone.\n\n"
             "  Connect by USB, unlock the phone, and trust this computer.\n"
             "  Without a cable, install the .ipa through SideStore or AltStore\n"
-            "  instead -- see docs/INSTALLING.md."
+            "  instead -- see docs/INSTALLING.md." + detail
         )
-    device = device or targets[0]
+    device = device or usable[0]
 
     proc = subprocess.run(
         ["xcrun", "devicectl", "device", "install", "app",
@@ -322,4 +407,38 @@ def install(app: Path, device: Device | None = None) -> str:
         raise SignError(
             f"install failed on {device.name}:\n{(proc.stderr or proc.stdout).strip()}"
         )
-    return f"{device.name} (iOS {device.os_version})"
+    return device.label
+
+
+def launch(app_bundle_id: str, device: Device) -> tuple[bool, str]:
+    """Try to launch the installed app. Returns (launched, message).
+
+    A first install signed with a development certificate will not launch until the
+    certificate is trusted *on the device*. Apple requires that to happen physically
+    in Settings and there is no way to do it remotely, so this reports the situation
+    rather than treating it as an error.
+    """
+    proc = subprocess.run(
+        ["xcrun", "devicectl", "device", "process", "launch",
+         "--device", device.identifier, app_bundle_id],
+        capture_output=True, text=True,
+    )
+    if proc.returncode == 0:
+        return True, "launched"
+
+    output = proc.stderr or proc.stdout
+    if "has not been explicitly trusted" in output or "RequestDenied" in output:
+        return False, "untrusted"
+    return False, output.strip().splitlines()[-1] if output.strip() else "unknown error"
+
+
+TRUST_INSTRUCTIONS = """\
+  The app is installed but iOS will not run it yet: a development certificate has to
+  be trusted on the device itself, and Apple requires that to be done physically.
+
+  On the iPhone:
+    Settings -> General -> VPN & Device Management
+    -> Developer App -> your Apple ID -> Trust
+
+  This is once per certificate, not once per install. After trusting it, launch the
+  app from the home screen."""

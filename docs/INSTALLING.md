@@ -51,6 +51,23 @@ If you would rather do it by hand: create any iOS project in Xcode with the same
 bundle identifier (`app.porthole.shell` for library mode) and press Run once. The
 effect is identical.
 
+## Then: trust the certificate on the device
+
+A first install signed with a development certificate installs fine and then refuses
+to launch:
+
+```
+Unable to launch app.porthole.shell because it has an invalid code signature,
+inadequate entitlements or its profile has not been explicitly trusted by the user
+```
+
+Almost always the last of those three. On the iPhone:
+
+**Settings → General → VPN & Device Management → Developer App → your Apple ID → Trust**
+
+Once per certificate, not once per install. `porthole install` detects this case and
+prints the same instructions rather than reporting a failure.
+
 ## Free Apple ID + Xcode
 
 What everyone starts with, and the most annoying long-term.

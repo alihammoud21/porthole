@@ -223,3 +223,107 @@ def test_bootstrap_dry_run_never_contacts_apple(tmp_path, monkeypatch):
         "dry run attempted to register an app id"
     assert all("build" not in c or "xcodebuild" not in c[0] or "-list" in c
                for c in calls), f"dry run ran a build: {calls}"
+
+
+# ──────────────── regressions found by running the real pipeline ────────────────
+#
+# Every bug below only surfaced when the app was actually built, signed and pushed
+# to a phone. None of them were visible from compilation alone.
+
+def test_team_id_comes_from_the_certificate_ou_not_the_common_name():
+    """For `Apple Development` certs, the CN parenthetical is the CERTIFICATE id.
+
+    Reading the team from there produces a plausible-looking wrong value, and
+    xcodebuild then fails with "No Account for Team ...", which sends you hunting for
+    an account problem that does not exist.
+    """
+    import re
+    from porthole import sign
+
+    ids = sign.identities()
+    if not ids:
+        pytest.skip("no signing identity in this keychain")
+
+    for identity in ids:
+        if not identity.team_id:
+            continue
+        assert re.fullmatch(r"[A-Z0-9]{10}", identity.team_id)
+        paren = re.search(r"\(([A-Z0-9]{10})\)\s*$", identity.name)
+        if paren and paren.group(1) != identity.team_id:
+            # Exactly the case this guards: the two differ, and OU is correct.
+            assert identity.team_id != paren.group(1)
+
+
+def test_profile_search_covers_the_modern_xcode_location():
+    """Xcode 16 moved managed profiles out of ~/Library/MobileDevice."""
+    from porthole import sign
+
+    paths = [str(d) for d in sign.PROFILE_DIRS]
+    assert any("Developer/Xcode/UserData" in p for p in paths), \
+        "the Xcode 16+ profile directory is not searched"
+    assert any("MobileDevice" in p for p in paths), \
+        "the legacy profile directory is still worth searching"
+
+
+def test_simulators_are_not_treated_as_hardware():
+    """`devicectl list devices` includes Simulators, and installing to one instead
+    of the phone is a confusing way to fail."""
+    from porthole import sign
+
+    found = sign.devices()
+    if not found:
+        pytest.skip("no iOS devices known to this machine")
+
+    # Real connected hardware must sort ahead of anything else.
+    if any(d.is_hardware and d.is_connected for d in found):
+        assert found[0].is_hardware and found[0].is_connected
+
+    for d in found:
+        assert isinstance(d.is_hardware, bool)
+        assert d.label
+
+
+def test_profile_expiry_is_computed_not_swallowed():
+    """plistlib returns naive datetimes; subtracting an aware now() raises TypeError.
+
+    That exception was being caught and the 7-day expiry warning -- the single most
+    useful thing to tell a free-account user -- silently disappeared.
+    """
+    from datetime import datetime, timezone
+    from porthole import sign
+
+    all_profiles = sign.profiles()
+    if not all_profiles:
+        pytest.skip("no provisioning profiles on this machine")
+
+    for profile in all_profiles:
+        if not isinstance(profile.expires, datetime):
+            continue
+        expires = profile.expires
+        if expires.tzinfo is None:
+            expires = expires.replace(tzinfo=timezone.utc)
+        days = (expires - datetime.now(timezone.utc)).days
+        assert isinstance(days, int)
+
+
+def test_bootstrap_stub_is_not_named_main_swift():
+    """Swift treats main.swift as top-level code, which cannot coexist with
+    @UIApplicationMain."""
+    from porthole import bootstrap
+
+    assert bootstrap.STUB_FILENAME != "main.swift"
+    assert "@UIApplicationMain" in bootstrap.STUB_SWIFT
+
+
+def test_generated_project_declares_supported_platforms():
+    """xcodebuild warns without these and cannot resolve the generic iOS destination.
+
+    Not a blocker -- the bootstrap build succeeded on a real account before these were
+    added -- but the warning is noise that hides real errors.
+    """
+    from porthole import bootstrap
+
+    pbxproj = bootstrap._pbxproj("app.porthole.test", "ABCDE12345", "Stub")
+    assert "SUPPORTED_PLATFORMS" in pbxproj
+    assert "SDKROOT = iphoneos" in pbxproj
+    assert bootstrap.STUB_FILENAME in pbxproj

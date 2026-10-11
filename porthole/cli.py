@@ -349,11 +349,35 @@ def cmd_sign(args) -> int:
 def cmd_install(args) -> int:
     try:
         app = _resolve_app(args.app, args.mode)
+        targets = [d for d in sign_mod.devices() if d.is_connected and d.is_hardware]
         where = sign_mod.install(app)
     except sign_mod.SignError as e:
         ui.error(str(e))
         return 1
-    print(f"\n{ui.green('  Installed')} to {ui.bold(where)}\n")
+
+    print(f"\n{ui.green('  Installed')} to {ui.bold(where)}")
+
+    if args.no_launch or not targets:
+        print()
+        return 0
+
+    import plistlib
+    bundle_id = plistlib.loads((app / "Info.plist").read_bytes())["CFBundleIdentifier"]
+    launched, detail = sign_mod.launch(bundle_id, targets[0])
+
+    if launched:
+        print(f"  {ui.green('Launched')} {ui.dim(bundle_id)}\n")
+        return 0
+
+    if detail == "untrusted":
+        print()
+        print(ui.yellow(sign_mod.TRUST_INSTRUCTIONS))
+        print()
+        return 0
+
+    print(f"  {ui.dim('could not launch automatically: ' + detail)}")
+    print(ui.dim("  Launch it from the home screen instead."))
+    print()
     return 0
 
 
@@ -585,6 +609,8 @@ def main(argv=None) -> int:
     p = sub.add_parser("install", help="deploy to a connected iPhone over USB")
     p.add_argument("app", nargs="?", help="path to a .app (default: the last build)")
     p.add_argument("--mode", choices=["library", "standalone"], default="library")
+    p.add_argument("--no-launch", action="store_true",
+                   help="install without trying to launch it")
     p.set_defaults(fn=cmd_install)
 
     args = ap.parse_args(argv)

@@ -73,7 +73,9 @@ interesting than "lawyers said so."
 | `porthole sign` — your own certificate, your own profile | **working** |
 | `porthole install` — deploy over USB | **working** |
 | RuntimeHost C ABI + reference runtime | **working** |
-| iOS shell: Metal renderer, touch controls, input router, audio | **written, typechecks, not yet run on a device** |
+| `bootstrap` — register an app id, fetch a profile | **working** |
+| Installed and verified on a physical iPhone | **done** |
+| iOS shell: Metal renderer, touch controls, input router, audio | **written and typechecks; not yet seen rendering** |
 | A real engine behind the ABI (DevilutionX first) | next |
 | Asset importer on device | written, untested on hardware |
 
@@ -85,9 +87,14 @@ $ porthole build selftest
 ```
 
 That produces a genuine `arm64-apple-ios` app bundle — verified Mach-O binary, a
-`dlopen`-able runtime framework exporting all seven ABI symbols, valid plists. What
-has *not* happened yet is a real game engine behind the ABI, or a frame rendered on
-physical hardware.
+`dlopen`-able runtime framework exporting all seven ABI symbols, valid plists. It has
+been signed with a free Apple ID and **installed on a physical iPhone**, where iOS
+accepts the signature, entitlements, and provisioning profile.
+
+What has *not* happened yet: a real game engine behind the ABI, and nobody has watched
+the shell render a frame — the device still needs its one-time
+Settings → General → VPN & Device Management trust step, which Apple requires be done
+by hand.
 
 If you clone this today you can detect games and read a lot of documentation. You
 cannot yet get a game onto a phone. [Roadmap](docs/ROADMAP.md) ·

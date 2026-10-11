@@ -33,8 +33,11 @@ the self-test runtime rather than a game:
       a throwaway Xcode project, the one place a `.pbxproj` turned out to be
       unavoidable. Verified offline; the live run changes an Apple account, so it is
       opt-in rather than implicit.
-- [ ] Run `selftest` on a device: test pattern visible, input lamps lighting, tone
-      audible, save state round-tripping
+- [x] Build, sign and install on a physical iPhone. iOS accepts the signature,
+      entitlements and profile; `devicectl` confirms `Porthole 0.1.0` installed.
+- [ ] Actually *watch* it run: test pattern visible, input lamps lighting, tone
+      audible, save state round-tripping. Blocked only on the device-side certificate
+      trust step, which Apple requires be done by hand in Settings.
 - [ ] Seed-to-Documents copy on first launch
 - [ ] `refresh` for the 7-day re-sign
 - [x] `porthole serve` — LAN asset handoff, token-gated and read-only, with a
