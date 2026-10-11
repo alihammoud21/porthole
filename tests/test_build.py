@@ -175,3 +175,51 @@ def test_first_party_runtime_sources_are_tracked_by_git():
         f"runtime sources exist on disk but are not tracked by git: {missing}. "
         "Check .gitignore."
     )
+
+
+# ───────────────────────────── provisioning bootstrap ─────────────────────────────
+
+def test_generated_xcode_project_is_wellformed(tmp_path):
+    """The throwaway project must parse, or `porthole bootstrap` cannot work.
+
+    Generated offline; this never contacts Apple.
+    """
+    import shutil as _shutil
+    if _shutil.which("xcodebuild") is None:
+        pytest.skip("needs Xcode")
+
+    from porthole import bootstrap
+
+    project = bootstrap.generate_project(
+        "app.porthole.test", "ABCDE12345", tmp_path / "bootstrap")
+    assert project.is_dir()
+    assert (project / "project.pbxproj").is_file()
+
+    targets = bootstrap.validate_project(project)
+    assert targets == ["PortholeBootstrap"], f"unexpected targets: {targets}"
+
+
+def test_bootstrap_dry_run_never_contacts_apple(tmp_path, monkeypatch):
+    """A dry run must not shell out to anything that could register an app id."""
+    import shutil as _shutil
+    if _shutil.which("xcodebuild") is None:
+        pytest.skip("needs Xcode")
+
+    from porthole import bootstrap
+
+    calls = []
+    real_run = bootstrap.subprocess.run
+
+    def spy(args, *a, **kw):
+        calls.append(list(args))
+        return real_run(args, *a, **kw)
+
+    monkeypatch.setattr(bootstrap.subprocess, "run", spy)
+    result = bootstrap.bootstrap("app.porthole.test", team_id="ABCDE12345",
+                                 dry_run=True)
+
+    assert not result.profile_created
+    assert all("-allowProvisioningUpdates" not in c for c in calls), \
+        "dry run attempted to register an app id"
+    assert all("build" not in c or "xcodebuild" not in c[0] or "-list" in c
+               for c in calls), f"dry run ran a build: {calls}"

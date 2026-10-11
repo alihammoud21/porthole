@@ -24,6 +24,33 @@ Do you have $99/yr for a developer account?
                 └── no  ──► SideStore. Free, self-renewing, needs a one-time setup.
 ```
 
+## First: register the app id
+
+Signing needs a provisioning profile, and only Apple issues them — there is no public
+API, and the only supported route is Xcode's automatic signing.
+
+`porthole bootstrap` drives that for you. It generates a throwaway Xcode project whose
+sole purpose is to make Xcode register the bundle id and fetch a profile, builds it
+once, and discards it.
+
+```bash
+porthole bootstrap --dry-run   # generate and validate the project; Apple not contacted
+porthole bootstrap             # register the app id and fetch a profile
+```
+
+This is the one command in Porthole that **changes your Apple developer account**, so
+it is never run implicitly — `porthole sign` prints instructions and stops instead.
+
+- Your Apple ID must already be signed in to Xcode (Settings → Accounts).
+- A **free** Apple ID may register only **10 app ids per 7 days**, so don't spend them
+  experimenting. Library mode needs exactly one.
+- Profiles land in `~/Library/MobileDevice/Provisioning Profiles`, and `porthole sign`
+  finds them from then on — including after Xcode renews an expired one.
+
+If you would rather do it by hand: create any iOS project in Xcode with the same
+bundle identifier (`app.porthole.shell` for library mode) and press Run once. The
+effect is identical.
+
 ## Free Apple ID + Xcode
 
 What everyone starts with, and the most annoying long-term.
@@ -34,8 +61,9 @@ What everyone starts with, and the most annoying long-term.
 - **Needs** a Mac with Xcode, a USB cable
 
 ```bash
+porthole bootstrap              # once, to register the app id
 porthole build diablo --mode library
-porthole sign --free            # uses the identity in your keychain
+porthole sign                   # uses the identity in your keychain
 porthole install                # over USB
 ```
 

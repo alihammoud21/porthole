@@ -8,8 +8,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from . import (__version__, build as build_mod, plan as plan_mod, registry,
-               scan as scan_mod, sign as sign_mod, ui)
+from . import (__version__, bootstrap as bootstrap_mod, build as build_mod,
+               plan as plan_mod, registry, scan as scan_mod, sign as sign_mod, ui)
 
 
 # ───────────────────────────────── scan ─────────────────────────────────
@@ -356,6 +356,47 @@ def cmd_install(args) -> int:
     return 0
 
 
+# ───────────────────────────── bootstrap ─────────────────────────────
+
+def cmd_bootstrap(args) -> int:
+    """Register an app id with Apple so a provisioning profile exists."""
+    mode = args.mode
+    bundle_id = args.bundle_id or (
+        f"{build_mod.BUNDLE_ID_PREFIX}.shell" if mode == "library"
+        else f"{build_mod.BUNDLE_ID_PREFIX}.game.{args.game}")
+
+    if not args.dry_run:
+        print(ui.heading("This contacts Apple"))
+        print(f"  Registers {ui.bold(bundle_id)} on your developer account and")
+        print("  downloads a provisioning profile.")
+        print(ui.yellow("  A free Apple ID may only register 10 app ids per 7 days."))
+        print(ui.dim("  Your Apple ID must already be signed in to Xcode."))
+        print()
+
+    try:
+        result = bootstrap_mod.bootstrap(
+            bundle_id, team_id=args.team, dry_run=args.dry_run)
+    except sign_mod.SignError as e:
+        ui.error(str(e))
+        return 1
+
+    if args.dry_run:
+        print(ui.heading("Dry run"))
+        print(ui.field("bundle id", result.bundle_id, 14))
+        print(ui.field("team", result.team_id, 14))
+        print(ui.field("project", str(result.project_dir), 14))
+        print(f"\n  {ui.green('Project generated and parsed by xcodebuild.')}")
+        print(f"  {ui.dim('Apple was not contacted. Drop --dry-run to register.')}\n")
+        return 0
+
+    print(ui.heading("Registered"))
+    print(ui.field("bundle id", result.bundle_id, 14))
+    print(ui.field("team", result.team_id, 14))
+    print(f"\n{ui.green('  Provisioning profile created.')} "
+          f"{ui.dim('porthole sign will find it from now on.')}\n")
+    return 0
+
+
 # ───────────────────────────── stubs ─────────────────────────────
 
 def cmd_unimplemented(args) -> int:
@@ -410,6 +451,18 @@ def main(argv=None) -> int:
     p.add_argument("--ipa", action="store_true",
                    help="also package an .ipa for SideStore / AltStore")
     p.set_defaults(fn=cmd_sign)
+
+    p = sub.add_parser(
+        "bootstrap",
+        help="register an app id with Apple so a profile exists (contacts Apple)")
+    p.add_argument("game", nargs="?", default="selftest",
+                   help="recipe id, for --mode standalone")
+    p.add_argument("--mode", choices=["library", "standalone"], default="library")
+    p.add_argument("--bundle-id", help="override the bundle identifier")
+    p.add_argument("--team", help="team id (default: from your keychain)")
+    p.add_argument("--dry-run", action="store_true",
+                   help="generate and validate the project without contacting Apple")
+    p.set_defaults(fn=cmd_bootstrap)
 
     p = sub.add_parser("install", help="deploy to a connected iPhone over USB")
     p.add_argument("app", nargs="?", help="path to a .app (default: the last build)")

@@ -29,10 +29,10 @@ Everything above is verified by compilation and by inspecting the artifacts. Non
 it has drawn a pixel on a phone. That is the next milestone, and it is deliberately
 the self-test runtime rather than a game:
 
-- [ ] Register the app id so a provisioning profile exists. Apple only issues these
-      through Xcode, so `porthole sign` currently stops with instructions. Automating
-      it needs `xcodebuild -allowProvisioningUpdates` against a generated project —
-      the one place a `.xcodeproj` may turn out to be unavoidable.
+- [x] `porthole bootstrap` — registers the app id and fetches a profile by generating
+      a throwaway Xcode project, the one place a `.pbxproj` turned out to be
+      unavoidable. Verified offline; the live run changes an Apple account, so it is
+      opt-in rather than implicit.
 - [ ] Run `selftest` on a device: test pattern visible, input lamps lighting, tone
       audible, save state round-tripping
 - [ ] Seed-to-Documents copy on first launch

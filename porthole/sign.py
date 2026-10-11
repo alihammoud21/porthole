@@ -119,16 +119,16 @@ def find_profile(bundle_id: str) -> Profile:
     if not candidates:
         raise SignError(
             f"no provisioning profile matches '{bundle_id}'.\n\n"
-            "  Porthole cannot create one -- only Apple can, and only through Xcode.\n"
-            "  The one-time fix:\n"
-            "    1. Open Xcode, Settings -> Accounts, and sign in with your Apple ID\n"
-            "    2. Create any iOS project with this exact bundle identifier\n"
-            f"       ({bundle_id})\n"
-            "    3. Select your device and press Run once\n\n"
-            "  Xcode registers the app id and writes a profile to\n"
-            f"    {PROFILE_DIR}\n"
-            "  After that `porthole sign` finds it on its own, including after it\n"
-            "  expires and Xcode renews it.\n\n"
+            "  Only Apple issues these. To register the app id and fetch one:\n\n"
+            "    porthole bootstrap\n\n"
+            "  That generates a throwaway Xcode project, lets Xcode register the id,\n"
+            "  and discards it. Add --dry-run first to see what it would do without\n"
+            "  contacting Apple.\n\n"
+            "  Requires your Apple ID signed in to Xcode (Settings -> Accounts).\n"
+            "  A free Apple ID works but is limited to 10 app ids per 7 days.\n"
+            f"  Profiles land in {PROFILE_DIR}\n"
+            "  and `porthole sign` finds them from then on, including after Xcode\n"
+            "  renews an expired one.\n\n"
             "  See docs/INSTALLING.md for the other install paths."
         )
     candidates.sort(key=lambda p: (not p.is_wildcard, p.expires or 0), reverse=True)
