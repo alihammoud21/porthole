@@ -19,6 +19,7 @@ step "Repository invariants" ./tools/ci-checks.sh
 step "Reference integrity"   python3 -m porthole validate
 step "Compatibility table"   python3 tools/gen-compat.py --check
 step "Python tests"          python3 -m pytest tests/ -q
+step "Linux-path tests"      ./tools/linux-sim.sh
 
 if command -v xcrun >/dev/null 2>&1; then
   step "Swift harnesses"     python3 tools/verify-swift.py

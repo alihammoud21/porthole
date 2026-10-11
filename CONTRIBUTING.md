@@ -62,12 +62,38 @@ is deliberately narrow: Diablo, end to end, on a real phone.
 ## Before you open a PR
 
 ```bash
+./tools/check.sh          # everything CI runs, in one command
+```
+
+That covers the repository invariants, reference integrity, the compatibility table,
+the Python tests, the Linux-path simulation, both native Swift harnesses, the ABI
+header as C11 and C++17, the shell typecheck, and a real `selftest` build.
+
+Individually, if you prefer:
+
+```bash
+./tools/ci-checks.sh               # repository invariants (no game data, etc.)
 python3 -m porthole validate       # every reference resolves, metadata is sane
 python3 tools/gen-compat.py        # if you touched recipes/
 python3 -m pytest tests/ -q        # if you touched porthole/
+./tools/linux-sim.sh               # the suite as the Linux CI job sees it
+python3 tools/verify-swift.py      # if you touched shell/
 ```
 
-All three run in CI, so running them locally just saves you a round trip.
+### A test that needs macOS tooling
+
+CI runs the suite on Linux as well as macOS. Anything shelling out to `security`,
+`codesign` or `xcrun` must carry the `macos` marker, or it passes locally and fails on
+Linux:
+
+```python
+@pytest.mark.macos
+def test_something_about_signing():
+    ...
+```
+
+`./tools/linux-sim.sh` catches a forgotten marker before you push — it runs the suite
+with those tools hidden from `PATH`.
 
 ## Honest metadata
 

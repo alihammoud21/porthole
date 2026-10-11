@@ -179,15 +179,12 @@ def test_first_party_runtime_sources_are_tracked_by_git():
 
 # ───────────────────────────── provisioning bootstrap ─────────────────────────────
 
+@pytest.mark.macos
 def test_generated_xcode_project_is_wellformed(tmp_path):
     """The throwaway project must parse, or `porthole bootstrap` cannot work.
 
     Generated offline; this never contacts Apple.
     """
-    import shutil as _shutil
-    if _shutil.which("xcodebuild") is None:
-        pytest.skip("needs Xcode")
-
     from porthole import bootstrap
 
     project = bootstrap.generate_project(
@@ -199,12 +196,9 @@ def test_generated_xcode_project_is_wellformed(tmp_path):
     assert targets == ["PortholeBootstrap"], f"unexpected targets: {targets}"
 
 
+@pytest.mark.macos
 def test_bootstrap_dry_run_never_contacts_apple(tmp_path, monkeypatch):
     """A dry run must not shell out to anything that could register an app id."""
-    import shutil as _shutil
-    if _shutil.which("xcodebuild") is None:
-        pytest.skip("needs Xcode")
-
     from porthole import bootstrap
 
     calls = []
@@ -230,6 +224,7 @@ def test_bootstrap_dry_run_never_contacts_apple(tmp_path, monkeypatch):
 # Every bug below only surfaced when the app was actually built, signed and pushed
 # to a phone. None of them were visible from compilation alone.
 
+@pytest.mark.macos
 def test_team_id_comes_from_the_certificate_ou_not_the_common_name():
     """For `Apple Development` certs, the CN parenthetical is the CERTIFICATE id.
 
@@ -265,6 +260,7 @@ def test_profile_search_covers_the_modern_xcode_location():
         "the legacy profile directory is still worth searching"
 
 
+@pytest.mark.macos
 def test_simulators_are_not_treated_as_hardware():
     """`devicectl list devices` includes Simulators, and installing to one instead
     of the phone is a confusing way to fail."""
@@ -283,6 +279,7 @@ def test_simulators_are_not_treated_as_hardware():
         assert d.label
 
 
+@pytest.mark.macos
 def test_profile_expiry_is_computed_not_swallowed():
     """plistlib returns naive datetimes; subtracting an aware now() raises TypeError.
 
